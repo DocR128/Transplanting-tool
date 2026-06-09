@@ -202,7 +202,7 @@
   <div id="stage-writing" class="hidden">
     <div class="panel">
       <div class="panel-title">📝 Writing to SharePoint...</div>
-      <div class="status-bar status-info"><div class="spinner"></div><span id="writing-status">Authenticating with Microsoft...</span></div>
+      <div class="status-bar status-info"><div class="spinner"></div><span id="writing-status">Connecting to proxy...</span></div>
     </div>
   </div>
 
@@ -230,6 +230,10 @@
 </div>
 
 <script>
+// ── Config ─────────────────────────────────────────────────────────────────────
+const WORKER_URL = 'https://transplanting-proxy.neil-1b4.workers.dev';
+
+// ── Credentials ────────────────────────────────────────────────────────────────
 const LS_KEY = 'transplanting_tool_creds';
 function loadCreds() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { return {}; } }
 function saveCreds(o) { localStorage.setItem(LS_KEY, JSON.stringify(o)); }
@@ -288,6 +292,7 @@ document.getElementById('clear-creds-btn').addEventListener('click', () => {
   if (confirm('Clear all saved credentials from this browser?')) { clearCreds(); populateFields({}); updateBadge(false); }
 });
 
+// ── State ──────────────────────────────────────────────────────────────────────
 let extractedRows = [];
 
 function showStage(name) {
@@ -303,6 +308,7 @@ function showStage(name) {
 }
 function setStatus(id, msg) { const el = document.getElementById(id); if (el) el.textContent = msg; }
 
+// ── JSON parsing ───────────────────────────────────────────────────────────────
 document.getElementById('parse-btn').addEventListener('click', () => {
   const raw = document.getElementById('json-input').value.trim();
   const errEl = document.getElementById('parse-error');
@@ -312,9 +318,9 @@ document.getElementById('parse-btn').addEventListener('click', () => {
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
     if (parsed.header) {
-      document.getElementById('meta-date').value   = parsed.header.date         || '';
-      document.getElementById('meta-week').value   = parsed.header.week_no      || '';
-      document.getElementById('meta-medium').value = parsed.header.growing_medium || '';
+      document.getElementById('meta-date').value   = parsed.header.date            || '';
+      document.getElementById('meta-week').value   = parsed.header.week_no         || '';
+      document.getElementById('meta-medium').value = parsed.header.growing_medium  || '';
     }
     extractedRows = parsed.rows || [];
     if (!extractedRows.length) throw new Error('No rows found in JSON.');
@@ -334,7 +340,7 @@ document.getElementById('clear-paste-btn').addEventListener('click', () => {
   document.getElementById('parse-error').classList.add('hidden');
 });
 
-// Fields excluding season (handled separately as select)
+// ── Review table ───────────────────────────────────────────────────────────────
 const FIELDS = ['machine_no','plug_code','tray_size','num_trays','end_pack','variety','despatch','shelves','breakdown','total','batch','location'];
 const SEASONS = ['SU','AU','ES','CH'];
 
@@ -345,13 +351,11 @@ function renderReviewTable(rows) {
 
 function renderRow(row, i) {
   const tr = document.createElement('tr');
-
-  // Row number
   const tdNum = document.createElement('td');
   tdNum.textContent = i + 1; tdNum.style.color = 'var(--muted)';
   tr.appendChild(tdNum);
 
-  // Season dropdown (per row)
+  // Season dropdown
   const tdSeason = document.createElement('td');
   const sel = document.createElement('select');
   SEASONS.forEach(s => {
@@ -367,7 +371,6 @@ function renderRow(row, i) {
   tdSeason.appendChild(sel);
   tr.appendChild(tdSeason);
 
-  // All other fields
   FIELDS.forEach(field => {
     const cell = row[field] || { value: '', uncertain: false };
     const td = document.createElement('td');
@@ -381,7 +384,6 @@ function renderRow(row, i) {
     td.appendChild(inp); tr.appendChild(td);
   });
 
-  // Delete
   const tdDel = document.createElement('td');
   const delBtn = document.createElement('button');
   delBtn.className = 'del-btn'; delBtn.textContent = '✕';
@@ -400,13 +402,13 @@ document.getElementById('add-row-btn').addEventListener('click', () => {
   renderReviewTable(extractedRows);
 });
 
-// Format batch number: "12" → "Batch 12", "-" or "" → ""
 function formatBatch(raw) {
   if (!raw || raw.trim() === '-' || raw.trim() === '') return '';
   const n = raw.trim();
   return n.toLowerCase().startsWith('batch') ? n : `Batch ${n}`;
 }
 
+// ── Write to SharePoint via Worker ─────────────────────────────────────────────
 document.getElementById('confirm-btn').addEventListener('click', async () => {
   const creds = loadCreds();
   if (!creds.tenant || !creds.client || !creds.secret) {
@@ -414,42 +416,39 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
     return;
   }
   showStage('writing');
+
   try {
-    setStatus('writing-status', 'Authenticating with Microsoft Graph...');
-    const tokenResp = await fetch(`https://login.microsoftonline.com/${creds.tenant}/oauth2/v2.0/token`, {
+    const transDate = document.getElementById('meta-date').value || '';
+    const weekNo    = document.getElementById('meta-week').value || '';
+    const medium    = document.getElementById('meta-medium').value || '';
+
+    // Step 1: Download file via Worker
+    setStatus('writing-status', 'Downloading diary from SharePoint...');
+    const downloadResp = await fetch(WORKER_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ grant_type: 'client_credentials', client_id: creds.client, client_secret: creds.secret, scope: 'https://graph.microsoft.com/.default' })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'download',
+        tenant: creds.tenant,
+        client: creds.client,
+        secret: creds.secret,
+        site:   creds.site,
+        filepath: creds.filepath
+      })
     });
-    if (!tokenResp.ok) { const e = await tokenResp.json(); throw new Error(`Auth failed: ${e.error_description || e.error}`); }
-    const token = (await tokenResp.json()).access_token;
+    const downloadData = await downloadResp.json();
+    if (!downloadData.success) throw new Error(downloadData.error || 'Download failed');
 
-    setStatus('writing-status', 'Locating file in SharePoint...');
-    const siteResp = await fetch(`https://graph.microsoft.com/v1.0/sites/${creds.site}:/`, { headers: { Authorization: `Bearer ${token}` } });
-    if (!siteResp.ok) throw new Error('Could not find SharePoint site — check site URL in config.');
-    const siteId = (await siteResp.json()).id;
-
-    const driveResp = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/drive`, { headers: { Authorization: `Bearer ${token}` } });
-    const driveId = (await driveResp.json()).id;
-
-    setStatus('writing-status', 'Downloading current diary file...');
-    const encodedPath = creds.filepath.replace(/ /g, '%20');
-    const fileResp = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/root:${encodedPath}:/content`, { headers: { Authorization: `Bearer ${token}` } });
-    if (!fileResp.ok) throw new Error(`Could not download file (${fileResp.status}) — check file path in config.`);
-    const fileBuffer = await fileResp.arrayBuffer();
-
-    setStatus('writing-status', 'Adding new rows to spreadsheet...');
+    // Step 2: Modify file in browser with SheetJS
+    setStatus('writing-status', 'Adding rows to spreadsheet...');
     const XLSX = await loadXLSX();
-    const wb = XLSX.read(new Uint8Array(fileBuffer), { type: 'array', cellStyles: true });
+    const binary = Uint8Array.from(atob(downloadData.file), c => c.charCodeAt(0));
+    const wb = XLSX.read(binary, { type: 'array', cellStyles: true });
     const ws = wb.Sheets['Main'];
     if (!ws) throw new Error('Could not find "Main" sheet in workbook.');
 
     const range = XLSX.utils.decode_range(ws['!ref']);
     let lastRow = range.e.r;
-
-    const transDate = document.getElementById('meta-date').value || '';
-    const weekNo    = document.getElementById('meta-week').value || '';
-    const medium    = document.getElementById('meta-medium').value || '';
 
     let dateSerial = transDate, dayNum = '', dayName = '';
     const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -480,8 +479,8 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
       set(6,  weekNo ? Number(weekNo) : '');
       set(7,  dayNum ? Number(dayNum) : '');
       set(8,  dayName);
-      set(9,  get('tray_size') ? Number(get('tray_size')) : '');
-      set(10, get('num_trays') ? Number(get('num_trays')) : '');
+      set(9,  get('tray_size')  ? Number(get('tray_size'))  : '');
+      set(10, get('num_trays')  ? Number(get('num_trays'))  : '');
       set(11, get('end_pack'));
       set(12, '');
       set(13, get('plug_code'));
@@ -500,20 +499,33 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
     ws['!ref'] = XLSX.utils.encode_range(range);
     const outBuffer = XLSX.write(wb, { type: 'array', bookType: 'xlsm', cellStyles: true });
 
-    setStatus('writing-status', 'Uploading updated file to SharePoint...');
-    const uploadResp = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/root:${encodedPath}:/content`, {
-      method: 'PUT',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/vnd.ms-excel.sheet.macroEnabled.12' },
-      body: new Uint8Array(outBuffer)
+    // Step 3: Upload via Worker
+    setStatus('writing-status', 'Uploading updated diary to SharePoint...');
+    const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(outBuffer)));
+    const uploadResp = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'upload',
+        tenant: creds.tenant,
+        client: creds.client,
+        secret: creds.secret,
+        site:   creds.site,
+        filepath: creds.filepath,
+        fileData: fileBase64
+      })
     });
-    if (!uploadResp.ok) { const t = await uploadResp.text(); throw new Error(`Upload failed (${uploadResp.status}): ${t}`); }
+    const uploadData = await uploadResp.json();
+    if (!uploadData.success) throw new Error(uploadData.error || 'Upload failed');
 
     document.getElementById('success-detail').textContent =
       `${extractedRows.length} row${extractedRows.length !== 1 ? 's' : ''} added to the diary. SharePoint version history updated automatically.`;
     showStage('success');
+
   } catch(err) { showError('SharePoint write failed: ' + err.message); }
 });
 
+// ── SheetJS loader ─────────────────────────────────────────────────────────────
 function loadXLSX() {
   return new Promise((resolve, reject) => {
     if (window.XLSX) return resolve(window.XLSX);
