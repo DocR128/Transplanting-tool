@@ -7,64 +7,30 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f4f1ea;
-    --surface: #fffef9;
-    --border: #d4c9b0;
-    --accent: #2d5a27;
-    --accent-light: #e8f0e6;
-    --warn: #c17f24;
-    --warn-light: #fdf3e0;
-    --danger: #8b2020;
-    --danger-light: #fdeaea;
-    --text: #1a1a16;
-    --muted: #6b6455;
-    --mono: 'DM Mono', monospace;
-    --serif: 'Fraunces', Georgia, serif;
+    --bg: #f4f1ea; --surface: #fffef9; --border: #d4c9b0;
+    --accent: #2d5a27; --accent-light: #e8f0e6;
+    --warn: #c17f24; --warn-light: #fdf3e0;
+    --danger: #8b2020; --danger-light: #fdeaea;
+    --text: #1a1a16; --muted: #6b6455;
+    --mono: 'DM Mono', monospace; --serif: 'Fraunces', Georgia, serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: var(--mono); font-size: 13px; min-height: 100vh; }
-
-  header {
-    background: var(--accent); color: #fff; padding: 18px 32px;
-    display: flex; align-items: baseline; gap: 16px; border-bottom: 3px solid #1a3a16;
-  }
+  header { background: var(--accent); color: #fff; padding: 18px 32px; display: flex; align-items: baseline; gap: 16px; border-bottom: 3px solid #1a3a16; }
   header h1 { font-family: var(--serif); font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
   header span { font-size: 11px; opacity: 0.7; letter-spacing: 0.5px; text-transform: uppercase; }
-
-  .container { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
-
-  .steps {
-    display: flex; margin-bottom: 28px; border: 1px solid var(--border);
-    border-radius: 6px; overflow: hidden; background: var(--surface);
-  }
-  .step {
-    flex: 1; padding: 10px 16px; font-size: 11px; text-transform: uppercase;
-    letter-spacing: 0.8px; color: var(--muted); border-right: 1px solid var(--border);
-    display: flex; align-items: center; gap: 8px;
-  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 28px 24px; }
+  .steps { display: flex; margin-bottom: 28px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--surface); }
+  .step { flex: 1; padding: 10px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); border-right: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
   .step:last-child { border-right: none; }
   .step.active { background: var(--accent); color: #fff; }
   .step.done { background: var(--accent-light); color: var(--accent); }
-  .step-num {
-    width: 18px; height: 18px; border-radius: 50%; background: currentColor;
-    color: var(--surface); display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 500; flex-shrink: 0;
-  }
+  .step-num { width: 18px; height: 18px; border-radius: 50%; background: currentColor; color: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; flex-shrink: 0; }
   .step.active .step-num { background: rgba(255,255,255,0.3); color: #fff; }
   .step.done .step-num { background: var(--accent); color: #fff; }
-
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 20px; }
-  .panel-title {
-    font-family: var(--serif); font-size: 16px; font-weight: 600;
-    margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
-  }
-
-  .btn {
-    display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px;
-    border-radius: 5px; border: none; cursor: pointer; font-family: var(--mono);
-    font-size: 12px; font-weight: 500; letter-spacing: 0.3px; transition: all 0.15s;
-  }
+  .panel-title { font-family: var(--serif); font-size: 16px; font-weight: 600; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 5px; border: none; cursor: pointer; font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: 0.3px; transition: all 0.15s; }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover:not(:disabled) { background: #1f3f1c; }
@@ -73,154 +39,73 @@
   .btn-danger { background: var(--danger); color: #fff; }
   .btn-danger:hover:not(:disabled) { background: #6a1818; }
   .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
-
-  .status-bar {
-    padding: 10px 14px; border-radius: 5px; font-size: 12px;
-    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
-  }
+  .status-bar { padding: 10px 14px; border-radius: 5px; font-size: 12px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
   .status-info { background: var(--accent-light); color: var(--accent); border: 1px solid #b8d4b4; }
   .status-warn { background: var(--warn-light); color: var(--warn); border: 1px solid #e8c878; }
   .status-error { background: var(--danger-light); color: var(--danger); border: 1px solid #e8b4b4; }
-  .spinner {
-    width: 14px; height: 14px; border: 2px solid currentColor;
-    border-top-color: transparent; border-radius: 50%;
-    animation: spin 0.7s linear infinite; flex-shrink: 0;
-  }
+  .spinner { width: 14px; height: 14px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* JSON paste area */
-  .paste-area {
-    width: 100%; min-height: 160px; padding: 12px; border: 1px solid var(--border);
-    border-radius: 6px; font-family: var(--mono); font-size: 11px; background: var(--bg);
-    color: var(--text); resize: vertical; line-height: 1.5;
-  }
+  .paste-area { width: 100%; min-height: 160px; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-family: var(--mono); font-size: 11px; background: var(--bg); color: var(--text); resize: vertical; line-height: 1.5; }
   .paste-area:focus { outline: none; border-color: var(--accent); background: #fff; }
-  .paste-hint {
-    font-size: 11px; color: var(--muted); margin-bottom: 10px; line-height: 1.6;
-    padding: 10px 14px; background: var(--accent-light); border-radius: 5px;
-    border: 1px solid #b8d4b4;
-  }
-
-  /* Review table */
+  .paste-hint { font-size: 11px; color: var(--muted); margin-bottom: 10px; line-height: 1.6; padding: 10px 14px; background: var(--accent-light); border-radius: 5px; border: 1px solid #b8d4b4; }
   .review-table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
-  thead th {
-    background: var(--accent); color: #fff; padding: 8px 10px;
-    text-align: left; font-weight: 500; white-space: nowrap; position: sticky; top: 0;
-  }
+  thead th { background: var(--accent); color: #fff; padding: 8px 10px; text-align: left; font-weight: 500; white-space: nowrap; position: sticky; top: 0; }
   tbody tr:nth-child(even) { background: var(--bg); }
   tbody tr:hover { background: var(--accent-light); }
   td { padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  td input {
-    width: 100%; border: 1px solid transparent; background: transparent;
-    font-family: var(--mono); font-size: 11.5px; color: var(--text);
-    padding: 2px 4px; border-radius: 3px; min-width: 60px;
-  }
-  td input:focus { outline: none; border-color: var(--accent); background: #fff; }
-  td.uncertain input { background: var(--warn-light); border-color: var(--warn); color: var(--warn); }
-  td.uncertain input:focus { background: #fff; color: var(--text); border-color: var(--accent); }
-  .del-btn {
-    background: none; border: none; cursor: pointer; color: var(--muted);
-    font-size: 14px; padding: 2px 6px; border-radius: 3px;
-  }
+  td input[type=text] { width: 100%; border: 1px solid transparent; background: transparent; font-family: var(--mono); font-size: 11.5px; color: var(--text); padding: 2px 4px; border-radius: 3px; min-width: 55px; }
+  td input[type=text]:focus { outline: none; border-color: var(--accent); background: #fff; }
+  td select { width: 100%; border: 1px solid transparent; background: transparent; font-family: var(--mono); font-size: 11.5px; color: var(--text); padding: 2px 4px; border-radius: 3px; cursor: pointer; }
+  td select:focus { outline: none; border-color: var(--accent); background: #fff; }
+  td.uncertain input[type=text] { background: var(--warn-light); border-color: var(--warn); color: var(--warn); }
+  td.uncertain input[type=text]:focus { background: #fff; color: var(--text); border-color: var(--accent); }
+  .del-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 14px; padding: 2px 6px; border-radius: 3px; }
   .del-btn:hover { background: var(--danger-light); color: var(--danger); }
-
-  .legend {
-    display: flex; gap: 16px; font-size: 11px; color: var(--muted);
-    margin-top: 12px; align-items: center; flex-wrap: wrap;
-  }
-  .legend-swatch {
-    width: 12px; height: 12px; border-radius: 2px;
-    display: inline-block; vertical-align: middle; margin-right: 4px;
-  }
-
+  .legend { display: flex; gap: 16px; font-size: 11px; color: var(--muted); margin-top: 12px; align-items: center; flex-wrap: wrap; }
+  .legend-swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; vertical-align: middle; margin-right: 4px; }
   .meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
   .meta-field label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 4px; }
-  .meta-field input {
-    width: 100%; padding: 7px 10px; border: 1px solid var(--border);
-    border-radius: 4px; font-family: var(--mono); font-size: 12px; background: var(--bg);
-  }
+  .meta-field input { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 12px; background: var(--bg); }
   .meta-field input:focus { outline: none; border-color: var(--accent); background: #fff; }
-
   .success-box { text-align: center; padding: 40px 24px; }
   .success-icon { font-size: 48px; margin-bottom: 16px; }
   .success-title { font-family: var(--serif); font-size: 20px; margin-bottom: 8px; color: var(--accent); }
   .success-sub { color: var(--muted); font-size: 12px; }
-
   .hidden { display: none !important; }
   .row-count { font-size: 11px; color: var(--muted); margin-left: auto; }
-
-  /* Config */
   .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 600px) { .config-grid { grid-template-columns: 1fr; } }
   .config-field label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 4px; }
-  .config-field input {
-    width: 100%; padding: 7px 10px; border: 1px solid var(--border);
-    border-radius: 4px; font-family: var(--mono); font-size: 11px; background: var(--bg);
-  }
+  .config-field input { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 11px; background: var(--bg); }
   .config-field input:focus { outline: none; border-color: var(--accent); background: #fff; }
   .config-note { font-size: 10px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
-  .config-saved-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    background: var(--accent-light); color: var(--accent); border: 1px solid #b8d4b4;
-    border-radius: 4px; padding: 4px 10px; font-size: 11px; margin-left: auto;
-  }
+  .config-saved-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--accent-light); color: var(--accent); border: 1px solid #b8d4b4; border-radius: 4px; padding: 4px 10px; font-size: 11px; margin-left: auto; }
   details { margin-top: 16px; }
-  details summary {
-    cursor: pointer; font-size: 11px; color: var(--muted); text-transform: uppercase;
-    letter-spacing: 0.5px; list-style: none; display: flex; align-items: center; gap: 6px;
-  }
+  details summary { cursor: pointer; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; list-style: none; display: flex; align-items: center; gap: 6px; }
   details summary::before { content: '▶'; font-size: 9px; transition: transform 0.2s; }
   details[open] summary::before { transform: rotate(90deg); }
   details .inner { margin-top: 14px; }
-
-  /* Overlay */
-  .overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.55);
-    display: flex; align-items: center; justify-content: center; z-index: 100;
-  }
-  .overlay-box {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 32px; max-width: 560px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.2);
-  }
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .overlay-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 32px; max-width: 560px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.2); }
   .overlay-title { font-family: var(--serif); font-size: 18px; font-weight: 600; margin-bottom: 6px; }
   .overlay-sub { color: var(--muted); font-size: 11px; margin-bottom: 20px; line-height: 1.6; }
 </style>
 </head>
 <body>
 
-<!-- FIRST-RUN CONFIG OVERLAY -->
 <div class="overlay hidden" id="config-overlay">
   <div class="overlay-box">
     <div class="overlay-title">⚙️ One-time Setup</div>
-    <div class="overlay-sub">
-      Enter your SharePoint credentials below. These are saved to this browser only — they never leave your device and are not stored in the tool code. You will not be asked again on this device.
-    </div>
+    <div class="overlay-sub">Enter your SharePoint credentials below. Saved to this browser only — never stored in the tool code. You won't be asked again on this device.</div>
     <div class="config-grid" style="margin-bottom:16px;">
-      <div class="config-field">
-        <label>Tenant ID</label>
-        <input type="text" id="setup-tenant" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
-      </div>
-      <div class="config-field">
-        <label>Client ID</label>
-        <input type="text" id="setup-client" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
-      </div>
-      <div class="config-field" style="grid-column:1/-1">
-        <label>Client Secret</label>
-        <input type="password" id="setup-secret" placeholder="Your Azure app secret">
-      </div>
-      <div class="config-field">
-        <label>SharePoint Site</label>
-        <input type="text" id="setup-site" placeholder="yourcompany.sharepoint.com">
-      </div>
-      <div class="config-field">
-        <label>File Path</label>
-        <input type="text" id="setup-filepath" placeholder="/Shared Documents/Transplanting Diary.xlsm">
-      </div>
+      <div class="config-field"><label>Tenant ID</label><input type="text" id="setup-tenant" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
+      <div class="config-field"><label>Client ID</label><input type="text" id="setup-client" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
+      <div class="config-field" style="grid-column:1/-1"><label>Client Secret</label><input type="password" id="setup-secret" placeholder="Your Azure app secret"></div>
+      <div class="config-field"><label>SharePoint Site</label><input type="text" id="setup-site" placeholder="yourcompany.sharepoint.com"></div>
+      <div class="config-field"><label>File Path</label><input type="text" id="setup-filepath" placeholder="/Shared Documents/Transplanting Diary.xlsm"></div>
     </div>
-    <div class="btn-row" style="margin-top:0;">
-      <button class="btn btn-primary" id="setup-save-btn">💾 Save &amp; Continue</button>
-    </div>
+    <div class="btn-row" style="margin-top:0;"><button class="btn btn-primary" id="setup-save-btn">💾 Save &amp; Continue</button></div>
   </div>
 </div>
 
@@ -230,54 +115,35 @@
 </header>
 
 <div class="container">
-
   <div class="steps">
     <div class="step active" id="step1"><div class="step-num">1</div> Paste JSON</div>
     <div class="step" id="step2"><div class="step-num">2</div> Review &amp; Edit</div>
     <div class="step" id="step3"><div class="step-num">3</div> Write to Diary</div>
   </div>
 
-  <!-- STAGE 1: PASTE JSON -->
+  <!-- STAGE 1: PASTE -->
   <div id="stage-paste">
     <div class="panel">
       <div class="panel-title">📋 Paste Claude's JSON Output</div>
-      <div class="paste-hint">
-        Upload the WhatsApp photo to Claude, ask it to read the sheet, then paste the JSON it returns here. Claude will format it ready for this tool automatically.
-      </div>
-      <textarea class="paste-area" id="json-input" placeholder='Paste the JSON from Claude here...'></textarea>
+      <div class="paste-hint">Upload the WhatsApp photo to Claude and ask it to read the sheet, then paste the JSON it returns here.</div>
+      <textarea class="paste-area" id="json-input" placeholder="Paste the JSON from Claude here..."></textarea>
       <div class="btn-row">
         <button class="btn btn-primary" id="parse-btn">→ Load Data</button>
         <button class="btn btn-secondary" id="clear-paste-btn">Clear</button>
       </div>
       <div id="parse-error" class="status-bar status-error hidden" style="margin-top:12px; margin-bottom:0;"></div>
     </div>
-
     <details>
       <summary>SharePoint configuration <span id="creds-badge" class="config-saved-badge hidden">✓ Credentials saved</span></summary>
       <div class="inner panel">
         <div class="config-grid">
-          <div class="config-field">
-            <label>Tenant ID</label>
-            <input type="text" id="cfg-tenant">
-          </div>
-          <div class="config-field">
-            <label>Client ID</label>
-            <input type="text" id="cfg-client">
-          </div>
-          <div class="config-field" style="grid-column:1/-1">
-            <label>Client Secret</label>
-            <input type="password" id="cfg-secret">
-          </div>
-          <div class="config-field">
-            <label>SharePoint Site</label>
-            <input type="text" id="cfg-site">
-          </div>
-          <div class="config-field" style="grid-column:1/-1">
-            <label>File Path in SharePoint</label>
-            <input type="text" id="cfg-filepath" placeholder="/Shared Documents/Transplanting Diary.xlsm">
-          </div>
+          <div class="config-field"><label>Tenant ID</label><input type="text" id="cfg-tenant"></div>
+          <div class="config-field"><label>Client ID</label><input type="text" id="cfg-client"></div>
+          <div class="config-field" style="grid-column:1/-1"><label>Client Secret</label><input type="password" id="cfg-secret"></div>
+          <div class="config-field"><label>SharePoint Site</label><input type="text" id="cfg-site"></div>
+          <div class="config-field" style="grid-column:1/-1"><label>File Path in SharePoint</label><input type="text" id="cfg-filepath" placeholder="/Shared Documents/Transplanting Diary.xlsm"></div>
         </div>
-        <p class="config-note">Credentials are stored in your browser's local storage only — never in the tool code or transmitted anywhere except directly to Microsoft Graph API.</p>
+        <p class="config-note">Credentials stored in browser local storage only — never in the tool code.</p>
         <div class="btn-row">
           <button class="btn btn-primary" id="save-creds-btn">💾 Save credentials</button>
           <button class="btn btn-danger" id="clear-creds-btn">🗑 Clear saved credentials</button>
@@ -289,36 +155,19 @@
   <!-- STAGE 2: REVIEW -->
   <div id="stage-review" class="hidden">
     <div class="panel">
-      <div class="panel-title">
-        ✏️ Review &amp; Edit Extracted Data
-        <span class="row-count" id="row-count"></span>
-      </div>
-      <div id="review-status" class="status-bar status-warn hidden">
-        ⚠ Amber cells were flagged as uncertain by Claude — please verify against the original sheet before confirming.
-      </div>
+      <div class="panel-title">✏️ Review &amp; Edit Extracted Data <span class="row-count" id="row-count"></span></div>
+      <div id="review-status" class="status-bar status-warn hidden">⚠ Amber cells were flagged as uncertain — please verify against the original sheet before confirming.</div>
       <div class="meta-grid">
-        <div class="meta-field">
-          <label>Season (AU/ES/SU/CH)</label>
-          <input type="text" id="meta-season" placeholder="AU">
-        </div>
-        <div class="meta-field">
-          <label>Trans Date (dd/mm/yyyy)</label>
-          <input type="text" id="meta-date" placeholder="04/06/2025">
-        </div>
-        <div class="meta-field">
-          <label>Week No</label>
-          <input type="text" id="meta-week" placeholder="23">
-        </div>
-        <div class="meta-field">
-          <label>Growing Medium</label>
-          <input type="text" id="meta-medium" placeholder="COIR 18 F">
-        </div>
+        <div class="meta-field"><label>Trans Date (dd/mm/yyyy)</label><input type="text" id="meta-date" placeholder="04/06/2026"></div>
+        <div class="meta-field"><label>Week No</label><input type="text" id="meta-week" placeholder="23"></div>
+        <div class="meta-field"><label>Growing Medium</label><input type="text" id="meta-medium" placeholder="9C1 trial"></div>
       </div>
       <div class="review-table-wrap">
         <table>
           <thead>
             <tr>
               <th>#</th>
+              <th>Season</th>
               <th>Machine No.</th>
               <th>Plug Code</th>
               <th>Tray Size</th>
@@ -353,10 +202,7 @@
   <div id="stage-writing" class="hidden">
     <div class="panel">
       <div class="panel-title">📝 Writing to SharePoint...</div>
-      <div class="status-bar status-info">
-        <div class="spinner"></div>
-        <span id="writing-status">Authenticating with Microsoft...</span>
-      </div>
+      <div class="status-bar status-info"><div class="spinner"></div><span id="writing-status">Authenticating with Microsoft...</span></div>
     </div>
   </div>
 
@@ -378,16 +224,12 @@
   <div id="stage-error" class="hidden">
     <div class="panel">
       <div class="status-bar status-error" id="error-msg"></div>
-      <div class="btn-row">
-        <button class="btn btn-secondary" id="error-restart-btn">↩ Start Over</button>
-      </div>
+      <div class="btn-row"><button class="btn btn-secondary" id="error-restart-btn">↩ Start Over</button></div>
     </div>
   </div>
-
 </div>
 
 <script>
-// ── Credentials (localStorage) ─────────────────────────────────────────────────
 const LS_KEY = 'transplanting_tool_creds';
 function loadCreds() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { return {}; } }
 function saveCreds(o) { localStorage.setItem(LS_KEY, JSON.stringify(o)); }
@@ -401,10 +243,10 @@ function populateFields(c) {
 }
 function readFields() {
   return {
-    tenant:   document.getElementById('cfg-tenant').value.trim(),
-    client:   document.getElementById('cfg-client').value.trim(),
-    secret:   document.getElementById('cfg-secret').value.trim(),
-    site:     document.getElementById('cfg-site').value.trim(),
+    tenant: document.getElementById('cfg-tenant').value.trim(),
+    client: document.getElementById('cfg-client').value.trim(),
+    secret: document.getElementById('cfg-secret').value.trim(),
+    site:   document.getElementById('cfg-site').value.trim(),
     filepath: document.getElementById('cfg-filepath').value.trim(),
   };
 }
@@ -426,10 +268,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
 document.getElementById('setup-save-btn').addEventListener('click', () => {
   const c = {
-    tenant:   document.getElementById('setup-tenant').value.trim(),
-    client:   document.getElementById('setup-client').value.trim(),
-    secret:   document.getElementById('setup-secret').value.trim(),
-    site:     document.getElementById('setup-site').value.trim(),
+    tenant: document.getElementById('setup-tenant').value.trim(),
+    client: document.getElementById('setup-client').value.trim(),
+    secret: document.getElementById('setup-secret').value.trim(),
+    site:   document.getElementById('setup-site').value.trim(),
     filepath: document.getElementById('setup-filepath').value.trim(),
   };
   if (!c.tenant || !c.client || !c.secret || !c.site || !c.filepath) { alert('Please fill in all fields.'); return; }
@@ -446,10 +288,8 @@ document.getElementById('clear-creds-btn').addEventListener('click', () => {
   if (confirm('Clear all saved credentials from this browser?')) { clearCreds(); populateFields({}); updateBadge(false); }
 });
 
-// ── State ──────────────────────────────────────────────────────────────────────
 let extractedRows = [];
 
-// ── Stage management ───────────────────────────────────────────────────────────
 function showStage(name) {
   ['paste','review','writing','success','error'].forEach(s => {
     document.getElementById('stage-'+s).classList.toggle('hidden', s !== name);
@@ -463,36 +303,26 @@ function showStage(name) {
 }
 function setStatus(id, msg) { const el = document.getElementById(id); if (el) el.textContent = msg; }
 
-// ── JSON parsing ───────────────────────────────────────────────────────────────
 document.getElementById('parse-btn').addEventListener('click', () => {
   const raw = document.getElementById('json-input').value.trim();
   const errEl = document.getElementById('parse-error');
   errEl.classList.add('hidden');
-
   if (!raw) { errEl.textContent = '❌ Nothing pasted yet.'; errEl.classList.remove('hidden'); return; }
-
   try {
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
-
     if (parsed.header) {
-      document.getElementById('meta-season').value = parsed.header.season || '';
-      document.getElementById('meta-date').value   = parsed.header.date   || '';
-      document.getElementById('meta-week').value   = parsed.header.week_no || '';
+      document.getElementById('meta-date').value   = parsed.header.date         || '';
+      document.getElementById('meta-week').value   = parsed.header.week_no      || '';
       document.getElementById('meta-medium').value = parsed.header.growing_medium || '';
     }
-
     extractedRows = parsed.rows || [];
     if (!extractedRows.length) throw new Error('No rows found in JSON.');
-
     renderReviewTable(extractedRows);
     showStage('review');
-
     const hasUncertain = extractedRows.some(r => Object.values(r).some(v => v && v.uncertain));
     document.getElementById('review-status').classList.toggle('hidden', !hasUncertain);
-    document.getElementById('row-count').textContent =
-      `${extractedRows.length} row${extractedRows.length !== 1 ? 's' : ''} found`;
-
+    document.getElementById('row-count').textContent = `${extractedRows.length} row${extractedRows.length !== 1 ? 's' : ''} found`;
   } catch(e) {
     errEl.textContent = '❌ Could not parse JSON: ' + e.message;
     errEl.classList.remove('hidden');
@@ -504,8 +334,9 @@ document.getElementById('clear-paste-btn').addEventListener('click', () => {
   document.getElementById('parse-error').classList.add('hidden');
 });
 
-// ── Review table ───────────────────────────────────────────────────────────────
+// Fields excluding season (handled separately as select)
 const FIELDS = ['machine_no','plug_code','tray_size','num_trays','end_pack','variety','despatch','shelves','breakdown','total','batch','location'];
+const SEASONS = ['SU','AU','ES','CH'];
 
 function renderReviewTable(rows) {
   document.getElementById('review-tbody').innerHTML = '';
@@ -514,10 +345,29 @@ function renderReviewTable(rows) {
 
 function renderRow(row, i) {
   const tr = document.createElement('tr');
+
+  // Row number
   const tdNum = document.createElement('td');
   tdNum.textContent = i + 1; tdNum.style.color = 'var(--muted)';
   tr.appendChild(tdNum);
 
+  // Season dropdown (per row)
+  const tdSeason = document.createElement('td');
+  const sel = document.createElement('select');
+  SEASONS.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    if ((row.season && row.season.value === s) || (!row.season && s === 'SU')) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', () => {
+    if (!extractedRows[i].season) extractedRows[i].season = { value: sel.value, uncertain: false };
+    else extractedRows[i].season.value = sel.value;
+  });
+  tdSeason.appendChild(sel);
+  tr.appendChild(tdSeason);
+
+  // All other fields
   FIELDS.forEach(field => {
     const cell = row[field] || { value: '', uncertain: false };
     const td = document.createElement('td');
@@ -531,26 +381,32 @@ function renderRow(row, i) {
     td.appendChild(inp); tr.appendChild(td);
   });
 
+  // Delete
   const tdDel = document.createElement('td');
   const delBtn = document.createElement('button');
   delBtn.className = 'del-btn'; delBtn.textContent = '✕';
   delBtn.addEventListener('click', () => {
     extractedRows.splice(i, 1); renderReviewTable(extractedRows);
-    document.getElementById('row-count').textContent =
-      `${extractedRows.length} row${extractedRows.length !== 1 ? 's' : ''} found`;
+    document.getElementById('row-count').textContent = `${extractedRows.length} row${extractedRows.length !== 1 ? 's' : ''} found`;
   });
   tdDel.appendChild(delBtn); tr.appendChild(tdDel);
   document.getElementById('review-tbody').appendChild(tr);
 }
 
 document.getElementById('add-row-btn').addEventListener('click', () => {
-  const empty = {};
+  const empty = { season: { value: 'SU', uncertain: false } };
   FIELDS.forEach(f => empty[f] = { value: '', uncertain: false });
   extractedRows.push(empty);
   renderReviewTable(extractedRows);
 });
 
-// ── Write to SharePoint ────────────────────────────────────────────────────────
+// Format batch number: "12" → "Batch 12", "-" or "" → ""
+function formatBatch(raw) {
+  if (!raw || raw.trim() === '-' || raw.trim() === '') return '';
+  const n = raw.trim();
+  return n.toLowerCase().startsWith('batch') ? n : `Batch ${n}`;
+}
+
 document.getElementById('confirm-btn').addEventListener('click', async () => {
   const creds = loadCreds();
   if (!creds.tenant || !creds.client || !creds.secret) {
@@ -558,18 +414,12 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
     return;
   }
   showStage('writing');
-
   try {
     setStatus('writing-status', 'Authenticating with Microsoft Graph...');
     const tokenResp = await fetch(`https://login.microsoftonline.com/${creds.tenant}/oauth2/v2.0/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: creds.client,
-        client_secret: creds.secret,
-        scope: 'https://graph.microsoft.com/.default'
-      })
+      body: new URLSearchParams({ grant_type: 'client_credentials', client_id: creds.client, client_secret: creds.secret, scope: 'https://graph.microsoft.com/.default' })
     });
     if (!tokenResp.ok) { const e = await tokenResp.json(); throw new Error(`Auth failed: ${e.error_description || e.error}`); }
     const token = (await tokenResp.json()).access_token;
@@ -584,10 +434,7 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
 
     setStatus('writing-status', 'Downloading current diary file...');
     const encodedPath = creds.filepath.replace(/ /g, '%20');
-    const fileResp = await fetch(
-      `https://graph.microsoft.com/v1.0/drives/${driveId}/root:${encodedPath}:/content`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    const fileResp = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/root:${encodedPath}:/content`, { headers: { Authorization: `Bearer ${token}` } });
     if (!fileResp.ok) throw new Error(`Could not download file (${fileResp.status}) — check file path in config.`);
     const fileBuffer = await fileResp.arrayBuffer();
 
@@ -600,9 +447,8 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
     const range = XLSX.utils.decode_range(ws['!ref']);
     let lastRow = range.e.r;
 
-    const season    = document.getElementById('meta-season').value || 'AU';
-    const transDate = document.getElementById('meta-date').value   || '';
-    const weekNo    = document.getElementById('meta-week').value   || '';
+    const transDate = document.getElementById('meta-date').value || '';
+    const weekNo    = document.getElementById('meta-week').value || '';
     const medium    = document.getElementById('meta-medium').value || '';
 
     let dateSerial = transDate, dayNum = '', dayName = '';
@@ -620,6 +466,7 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
     extractedRows.forEach((row, i) => {
       const r = lastRow + 1 + i;
       const get = f => (row[f] && row[f].value) || '';
+      const season = (row.season && row.season.value) || 'SU';
       const set = (col, val, t) => {
         const addr = XLSX.utils.encode_cell({ r, c: col });
         ws[addr] = { v: val, t: t || (typeof val === 'number' ? 'n' : 's') };
@@ -643,7 +490,7 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
       set(16, get('total') ? Number(get('total')) : '');
       set(17, get('total') ? Number(get('total')) : '');
       set(18, '');
-      set(19, get('batch'));
+      set(19, formatBatch(get('batch')));
       set(20, get('location'));
       set(21, medium);
       set(22, get('breakdown'));
@@ -651,28 +498,22 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
 
     range.e.r = lastRow + extractedRows.length;
     ws['!ref'] = XLSX.utils.encode_range(range);
-
     const outBuffer = XLSX.write(wb, { type: 'array', bookType: 'xlsm', cellStyles: true });
 
     setStatus('writing-status', 'Uploading updated file to SharePoint...');
-    const uploadResp = await fetch(
-      `https://graph.microsoft.com/v1.0/drives/${driveId}/root:${encodedPath}:/content`,
-      {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/vnd.ms-excel.sheet.macroEnabled.12' },
-        body: new Uint8Array(outBuffer)
-      }
-    );
+    const uploadResp = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/root:${encodedPath}:/content`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/vnd.ms-excel.sheet.macroEnabled.12' },
+      body: new Uint8Array(outBuffer)
+    });
     if (!uploadResp.ok) { const t = await uploadResp.text(); throw new Error(`Upload failed (${uploadResp.status}): ${t}`); }
 
     document.getElementById('success-detail').textContent =
       `${extractedRows.length} row${extractedRows.length !== 1 ? 's' : ''} added to the diary. SharePoint version history updated automatically.`;
     showStage('success');
-
   } catch(err) { showError('SharePoint write failed: ' + err.message); }
 });
 
-// ── SheetJS loader ─────────────────────────────────────────────────────────────
 function loadXLSX() {
   return new Promise((resolve, reject) => {
     if (window.XLSX) return resolve(window.XLSX);
@@ -684,7 +525,6 @@ function loadXLSX() {
   });
 }
 
-// ── Misc ───────────────────────────────────────────────────────────────────────
 function showError(msg) { document.getElementById('error-msg').textContent = '❌ ' + msg; showStage('error'); }
 
 function restart() {
