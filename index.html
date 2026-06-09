@@ -217,26 +217,6 @@
 const WORKER_URL = 'https://transplanting-proxy.neil-1b4.workers.dev';
 const LS_KEY = 'transplanting_tool_creds';
 
-// ── Safe base64 encode for large buffers ───────────────────────────────────────
-function arrayBufferToBase64(buffer) {
-  const bytes = new Uint8Array(buffer);
-  const chunkSize = 8192;
-  let binary = '';
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    const chunk = bytes.subarray(i, i + chunkSize);
-    binary += String.fromCharCode(...chunk);
-  }
-  return btoa(binary);
-}
-
-function base64ToUint8Array(base64) {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
-}
-
-// ── Credentials ────────────────────────────────────────────────────────────────
 function loadCreds() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { return {}; } }
 function saveCreds(o) { localStorage.setItem(LS_KEY, JSON.stringify(o)); }
 function clearCreds() { localStorage.removeItem(LS_KEY); }
@@ -294,8 +274,8 @@ document.getElementById('clear-creds-btn').addEventListener('click', () => {
   if (confirm('Clear all saved credentials from this browser?')) { clearCreds(); populateFields({}); updateBadge(false); }
 });
 
-// ── State ──────────────────────────────────────────────────────────────────────
 let extractedRows = [];
+let headerMeta = {};
 
 function showStage(name) {
   ['paste','review','writing','success','error'].forEach(s => {
@@ -310,7 +290,6 @@ function showStage(name) {
 }
 function setStatus(id, msg) { const el = document.getElementById(id); if (el) el.textContent = msg; }
 
-// ── JSON parsing ───────────────────────────────────────────────────────────────
 document.getElementById('parse-btn').addEventListener('click', () => {
   const raw = document.getElementById('json-input').value.trim();
   const errEl = document.getElementById('parse-error');
@@ -319,10 +298,11 @@ document.getElementById('parse-btn').addEventListener('click', () => {
   try {
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
-    if (parsed.header) {
-      document.getElementById('meta-date').value   = parsed.header.date           || '';
-      document.getElementById('meta-week').value   = parsed.header.week_no        || '';
-      document.getElementById('meta-medium').value = parsed.header.growing_medium || '';
+    headerMeta = parsed.header || {};
+    if (headerMeta) {
+      document.getElementById('meta-date').value   = headerMeta.date           || '';
+      document.getElementById('meta-week').value   = headerMeta.week_no        || '';
+      document.getElementById('meta-medium').value = headerMeta.growing_medium || '';
     }
     extractedRows = parsed.rows || [];
     if (!extractedRows.length) throw new Error('No rows found in JSON.');
@@ -342,7 +322,6 @@ document.getElementById('clear-paste-btn').addEventListener('click', () => {
   document.getElementById('parse-error').classList.add('hidden');
 });
 
-// ── Review table ───────────────────────────────────────────────────────────────
 const FIELDS = ['machine_no','plug_code','tray_size','num_trays','end_pack','variety','despatch','shelves','breakdown','total','batch','location'];
 const SEASONS = ['SU','AU','ES','CH'];
 
@@ -403,13 +382,6 @@ document.getElementById('add-row-btn').addEventListener('click', () => {
   renderReviewTable(extractedRows);
 });
 
-function formatBatch(raw) {
-  if (!raw || raw.trim() === '-' || raw.trim() === '') return '';
-  const n = raw.trim();
-  return n.toLowerCase().startsWith('batch') ? n : `Batch ${n}`;
-}
-
-// ── Write to SharePoint via Worker ─────────────────────────────────────────────
 document.getElementById('confirm-btn').addEventListener('click', async () => {
   const creds = loadCreds();
   if (!creds.tenant || !creds.client || !creds.secret) {
@@ -417,136 +389,43 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
     return;
   }
   showStage('writing');
+  setStatus('writing-status', 'Writing rows directly to SharePoint workbook...');
 
   try {
-    const transDate = document.getElementById('meta-date').value || '';
-    const weekNo    = document.getElementById('meta-week').value || '';
-    const medium    = document.getElementById('meta-medium').value || '';
+    const meta = {
+      date:           document.getElementById('meta-date').value   || '',
+      week_no:        document.getElementById('meta-week').value   || '',
+      growing_medium: document.getElementById('meta-medium').value || '',
+    };
 
-    // Step 1: Download file via Worker
-    setStatus('writing-status', 'Downloading diary from SharePoint...');
-    const downloadResp = await fetch(WORKER_URL, {
+    const resp = await fetch(WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        action: 'download',
-        tenant: creds.tenant,
-        client: creds.client,
-        secret: creds.secret,
-        site:   creds.site,
-        filepath: creds.filepath
-      })
-    });
-
-    if (!downloadResp.ok) throw new Error(`Worker returned ${downloadResp.status}`);
-    const downloadData = await downloadResp.json();
-    if (!downloadData.success) throw new Error(downloadData.error || 'Download failed');
-
-    // Step 2: Modify file with SheetJS
-    setStatus('writing-status', 'Adding rows to spreadsheet...');
-    const XLSX = await loadXLSX();
-    const fileBytes = base64ToUint8Array(downloadData.file);
-    const wb = XLSX.read(fileBytes, { type: 'array', cellStyles: true });
-    const ws = wb.Sheets['Main'];
-    if (!ws) throw new Error('Could not find "Main" sheet in workbook.');
-
-    const range = XLSX.utils.decode_range(ws['!ref']);
-    let lastRow = range.e.r;
-
-    let dateSerial = transDate, dayNum = '', dayName = '';
-    const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    try {
-      const parts = transDate.match(/(\d+)[\/\-](\d+)[\/\-](\d+)/);
-      if (parts) {
-        const d = new Date(Number(parts[3]), Number(parts[2])-1, Number(parts[1]));
-        dateSerial = Math.floor((d - new Date(1899,11,30)) / 86400000);
-        dayNum = d.getDay() === 0 ? 7 : d.getDay();
-        dayName = dayNames[d.getDay()];
-      }
-    } catch(e) {}
-
-    extractedRows.forEach((row, i) => {
-      const r = lastRow + 1 + i;
-      const get = f => (row[f] && row[f].value) || '';
-      const season = (row.season && row.season.value) || 'SU';
-      const set = (col, val, t) => {
-        const addr = XLSX.utils.encode_cell({ r, c: col });
-        ws[addr] = { v: val, t: t || (typeof val === 'number' ? 'n' : 's') };
-      };
-      set(0,  season);
-      set(1,  get('machine_no'));
-      set(2,  '');
-      set(3,  '');
-      set(4,  get('plug_code'));
-      set(5,  typeof dateSerial === 'number' ? dateSerial : transDate, typeof dateSerial === 'number' ? 'n' : 's');
-      set(6,  weekNo ? Number(weekNo) : '');
-      set(7,  dayNum ? Number(dayNum) : '');
-      set(8,  dayName);
-      set(9,  get('tray_size')  ? Number(get('tray_size'))  : '');
-      set(10, get('num_trays')  ? Number(get('num_trays'))  : '');
-      set(11, get('end_pack'));
-      set(12, '');
-      set(13, get('plug_code'));
-      set(14, get('variety'));
-      set(15, get('despatch'));
-      set(16, get('total') ? Number(get('total')) : '');
-      set(17, get('total') ? Number(get('total')) : '');
-      set(18, '');
-      set(19, formatBatch(get('batch')));
-      set(20, get('location'));
-      set(21, medium);
-      set(22, get('breakdown'));
-    });
-
-    range.e.r = lastRow + extractedRows.length;
-    ws['!ref'] = XLSX.utils.encode_range(range);
-
-    // Step 3: Upload via Worker — use chunked base64
-    setStatus('writing-status', 'Uploading updated diary to SharePoint...');
-    const outBuffer = XLSX.write(wb, { type: 'array', bookType: 'xlsm', cellStyles: true });
-    const fileBase64 = arrayBufferToBase64(outBuffer);
-
-    const uploadResp = await fetch(WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'upload',
-        tenant: creds.tenant,
-        client: creds.client,
-        secret: creds.secret,
-        site:   creds.site,
+        tenant:   creds.tenant,
+        client:   creds.client,
+        secret:   creds.secret,
+        site:     creds.site,
         filepath: creds.filepath,
-        fileData: fileBase64
+        meta,
+        rows: extractedRows
       })
     });
 
-    if (!uploadResp.ok) throw new Error(`Worker returned ${uploadResp.status} on upload`);
-    const uploadData = await uploadResp.json();
-    if (!uploadData.success) throw new Error(uploadData.error || 'Upload failed');
+    const data = await resp.json();
+    if (!data.success) throw new Error(data.error || 'Write failed');
 
     document.getElementById('success-detail').textContent =
-      `${extractedRows.length} row${extractedRows.length !== 1 ? 's' : ''} added to the diary. SharePoint version history updated automatically.`;
+      `${data.rowsAdded} row${data.rowsAdded !== 1 ? 's' : ''} added to the diary. SharePoint version history updated automatically.`;
     showStage('success');
 
   } catch(err) { showError('SharePoint write failed: ' + err.message); }
 });
 
-// ── SheetJS loader ─────────────────────────────────────────────────────────────
-function loadXLSX() {
-  return new Promise((resolve, reject) => {
-    if (window.XLSX) return resolve(window.XLSX);
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-    s.onload = () => resolve(window.XLSX);
-    s.onerror = () => reject(new Error('Failed to load SheetJS'));
-    document.head.appendChild(s);
-  });
-}
-
 function showError(msg) { document.getElementById('error-msg').textContent = '❌ ' + msg; showStage('error'); }
 
 function restart() {
-  extractedRows = [];
+  extractedRows = []; headerMeta = {};
   document.getElementById('json-input').value = '';
   document.getElementById('parse-error').classList.add('hidden');
   document.getElementById('review-tbody').innerHTML = '';
