@@ -121,7 +121,6 @@
     <div class="step" id="step3"><div class="step-num">3</div> Write to Diary</div>
   </div>
 
-  <!-- STAGE 1: PASTE -->
   <div id="stage-paste">
     <div class="panel">
       <div class="panel-title">📋 Paste Claude's JSON Output</div>
@@ -152,7 +151,6 @@
     </details>
   </div>
 
-  <!-- STAGE 2: REVIEW -->
   <div id="stage-review" class="hidden">
     <div class="panel">
       <div class="panel-title">✏️ Review &amp; Edit Extracted Data <span class="row-count" id="row-count"></span></div>
@@ -166,21 +164,10 @@
         <table>
           <thead>
             <tr>
-              <th>#</th>
-              <th>Season</th>
-              <th>Machine No.</th>
-              <th>Plug Code</th>
-              <th>Tray Size</th>
-              <th>No. Trays</th>
-              <th>End Pack</th>
-              <th>Type / Variety</th>
-              <th>Despatch</th>
-              <th>Shelves/Trolley</th>
-              <th>Breakdown</th>
-              <th>Total Plants</th>
-              <th>Batch No.</th>
-              <th>Location</th>
-              <th></th>
+              <th>#</th><th>Season</th><th>Machine No.</th><th>Plug Code</th>
+              <th>Tray Size</th><th>No. Trays</th><th>End Pack</th><th>Type / Variety</th>
+              <th>Despatch</th><th>Shelves/Trolley</th><th>Breakdown</th>
+              <th>Total Plants</th><th>Batch No.</th><th>Location</th><th></th>
             </tr>
           </thead>
           <tbody id="review-tbody"></tbody>
@@ -198,7 +185,6 @@
     </div>
   </div>
 
-  <!-- STAGE 3: WRITING -->
   <div id="stage-writing" class="hidden">
     <div class="panel">
       <div class="panel-title">📝 Writing to SharePoint...</div>
@@ -206,7 +192,6 @@
     </div>
   </div>
 
-  <!-- SUCCESS -->
   <div id="stage-success" class="hidden">
     <div class="panel">
       <div class="success-box">
@@ -220,7 +205,6 @@
     </div>
   </div>
 
-  <!-- ERROR -->
   <div id="stage-error" class="hidden">
     <div class="panel">
       <div class="status-bar status-error" id="error-msg"></div>
@@ -230,11 +214,29 @@
 </div>
 
 <script>
-// ── Config ─────────────────────────────────────────────────────────────────────
 const WORKER_URL = 'https://transplanting-proxy.neil-1b4.workers.dev';
+const LS_KEY = 'transplanting_tool_creds';
+
+// ── Safe base64 encode for large buffers ───────────────────────────────────────
+function arrayBufferToBase64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 8192;
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
+}
+
+function base64ToUint8Array(base64) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
 
 // ── Credentials ────────────────────────────────────────────────────────────────
-const LS_KEY = 'transplanting_tool_creds';
 function loadCreds() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { return {}; } }
 function saveCreds(o) { localStorage.setItem(LS_KEY, JSON.stringify(o)); }
 function clearCreds() { localStorage.removeItem(LS_KEY); }
@@ -318,9 +320,9 @@ document.getElementById('parse-btn').addEventListener('click', () => {
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
     if (parsed.header) {
-      document.getElementById('meta-date').value   = parsed.header.date            || '';
-      document.getElementById('meta-week').value   = parsed.header.week_no         || '';
-      document.getElementById('meta-medium').value = parsed.header.growing_medium  || '';
+      document.getElementById('meta-date').value   = parsed.header.date           || '';
+      document.getElementById('meta-week').value   = parsed.header.week_no        || '';
+      document.getElementById('meta-medium').value = parsed.header.growing_medium || '';
     }
     extractedRows = parsed.rows || [];
     if (!extractedRows.length) throw new Error('No rows found in JSON.');
@@ -355,7 +357,6 @@ function renderRow(row, i) {
   tdNum.textContent = i + 1; tdNum.style.color = 'var(--muted)';
   tr.appendChild(tdNum);
 
-  // Season dropdown
   const tdSeason = document.createElement('td');
   const sel = document.createElement('select');
   SEASONS.forEach(s => {
@@ -436,14 +437,16 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
         filepath: creds.filepath
       })
     });
+
+    if (!downloadResp.ok) throw new Error(`Worker returned ${downloadResp.status}`);
     const downloadData = await downloadResp.json();
     if (!downloadData.success) throw new Error(downloadData.error || 'Download failed');
 
-    // Step 2: Modify file in browser with SheetJS
+    // Step 2: Modify file with SheetJS
     setStatus('writing-status', 'Adding rows to spreadsheet...');
     const XLSX = await loadXLSX();
-    const binary = Uint8Array.from(atob(downloadData.file), c => c.charCodeAt(0));
-    const wb = XLSX.read(binary, { type: 'array', cellStyles: true });
+    const fileBytes = base64ToUint8Array(downloadData.file);
+    const wb = XLSX.read(fileBytes, { type: 'array', cellStyles: true });
     const ws = wb.Sheets['Main'];
     if (!ws) throw new Error('Could not find "Main" sheet in workbook.');
 
@@ -497,11 +500,12 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
 
     range.e.r = lastRow + extractedRows.length;
     ws['!ref'] = XLSX.utils.encode_range(range);
-    const outBuffer = XLSX.write(wb, { type: 'array', bookType: 'xlsm', cellStyles: true });
 
-    // Step 3: Upload via Worker
+    // Step 3: Upload via Worker — use chunked base64
     setStatus('writing-status', 'Uploading updated diary to SharePoint...');
-    const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(outBuffer)));
+    const outBuffer = XLSX.write(wb, { type: 'array', bookType: 'xlsm', cellStyles: true });
+    const fileBase64 = arrayBufferToBase64(outBuffer);
+
     const uploadResp = await fetch(WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -515,6 +519,8 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
         fileData: fileBase64
       })
     });
+
+    if (!uploadResp.ok) throw new Error(`Worker returned ${uploadResp.status} on upload`);
     const uploadData = await uploadResp.json();
     if (!uploadData.success) throw new Error(uploadData.error || 'Upload failed');
 
