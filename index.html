@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transplanting Diary Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --surface: #fffef9;
+    --border: #d4c9b0;
+    --accent: #2d5a27;
+    --accent-light: #e8f0e6;
+    --warn: #c17f24;
+    --warn-light: #fdf3e0;
+    --danger: #8b2020;
+    --danger-light: #fdeaea;
+    --text: #1a1a16;
+    --muted: #6b6455;
+    --mono: 'DM Mono', monospace;
+    --serif: 'Fraunces', Georgia, serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--accent);
+    color: #fff;
+    padding: 18px 32px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    border-bottom: 3px solid #1a3a16;
+  }
+  header h1 { font-family: var(--serif); font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+  header span { font-size: 11px; opacity: 0.7; letter-spacing: 0.5px; text-transform: uppercase; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
+
+  .steps {
+    display: flex; gap: 0; margin-bottom: 28px;
+    border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--surface);
+  }
+  .step {
+    flex: 1; padding: 10px 16px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--muted); border-right: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .step:last-child { border-right: none; }
+  .step.active { background: var(--accent); color: #fff; }
+  .step.done { background: var(--accent-light); color: var(--accent); }
+  .step-num {
+    width: 18px; height: 18px; border-radius: 50%; background: currentColor;
+    color: var(--surface); display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 500; flex-shrink: 0;
+  }
+  .step.active .step-num { background: rgba(255,255,255,0.3); color: #fff; }
+  .step.done .step-num { background: var(--accent); color: #fff; }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 24px; margin-bottom: 20px;
+  }
+  .panel-title {
+    font-family: var(--serif); font-size: 16px; font-weight: 600;
+    margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .upload-zone {
+    border: 2px dashed var(--border); border-radius: 8px; padding: 48px 24px;
+    text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg);
+  }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: var(--accent-light); }
+  .upload-zone input { display: none; }
+  .upload-icon { font-size: 36px; margin-bottom: 12px; }
+  .upload-label { font-family: var(--serif); font-size: 15px; margin-bottom: 6px; }
+  .upload-sub { color: var(--muted); font-size: 11px; }
+
+  .preview-img {
+    max-width: 100%; max-height: 300px; border-radius: 6px;
+    border: 1px solid var(--border); display: block; margin: 0 auto;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px;
+    border-radius: 5px; border: none; cursor: pointer; font-family: var(--mono);
+    font-size: 12px; font-weight: 500; letter-spacing: 0.3px; transition: all 0.15s;
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: #1f3f1c; }
+  .btn-secondary { background: var(--border); color: var(--text); }
+  .btn-secondary:hover:not(:disabled) { background: #c4b9a0; }
+  .btn-warn { background: var(--warn); color: #fff; }
+  .btn-warn:hover:not(:disabled) { background: #9e6819; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover:not(:disabled) { background: #6a1818; }
+  .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
+
+  .status-bar {
+    padding: 10px 14px; border-radius: 5px; font-size: 12px;
+    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  }
+  .status-info { background: var(--accent-light); color: var(--accent); border: 1px solid #b8d4b4; }
+  .status-warn { background: var(--warn-light); color: var(--warn); border: 1px solid #e8c878; }
+  .status-error { background: var(--danger-light); color: var(--danger); border: 1px solid #e8b4b4; }
+  .spinner {
+    width: 14px; height: 14px; border: 2px solid currentColor;
+    border-top-color: transparent; border-radius: 50%;
+    animation: spin 0.7s linear infinite; flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .review-table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  thead th {
+    background: var(--accent); color: #fff; padding: 8px 10px;
+    text-align: left; font-weight: 500; white-space: nowrap; position: sticky; top: 0;
+  }
+  tbody tr:nth-child(even) { background: var(--bg); }
+  tbody tr:hover { background: var(--accent-light); }
+  td { padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  td input {
+    width: 100%; border: 1px solid transparent; background: transparent;
+    font-family: var(--mono); font-size: 11.5px; color: var(--text);
+    padding: 2px 4px; border-radius: 3px; min-width: 60px;
+  }
+  td input:focus { outline: none; border-color: var(--accent); background: #fff; }
+  td.uncertain input { background: var(--warn-light); border-color: var(--warn); color: var(--warn); }
+  td.uncertain input:focus { background: #fff; color: var(--text); border-color: var(--accent); }
+  .del-btn {
+    background: none; border: none; cursor: pointer; color: var(--muted);
+    font-size: 14px; padding: 2px 6px; border-radius: 3px;
+  }
+  .del-btn:hover { background: var(--danger-light); color: var(--danger); }
+
+  .legend {
+    display: flex; gap: 16px; font-size: 11px; color: var(--muted);
+    margin-top: 12px; align-items: center; flex-wrap: wrap;
+  }
+  .legend-swatch {
+    width: 12px; height: 12px; border-radius: 2px;
+    display: inline-block; vertical-align: middle; margin-right: 4px;
+  }
+
+  .meta-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px; margin-bottom: 20px;
+  }
+  .meta-field label {
+    display: block; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.6px; color: var(--muted); margin-bottom: 4px;
+  }
+  .meta-field input {
+    width: 100%; padding: 7px 10px; border: 1px solid var(--border);
+    border-radius: 4px; font-family: var(--mono); font-size: 12px; background: var(--bg);
+  }
+  .meta-field input:focus { outline: none; border-color: var(--accent); background: #fff; }
+
+  .success-box { text-align: center; padding: 40px 24px; }
+  .success-icon { font-size: 48px; margin-bottom: 16px; }
+  .success-title { font-family: var(--serif); font-size: 20px; margin-bottom: 8px; color: var(--accent); }
+  .success-sub { color: var(--muted); font-size: 12px; }
+
+  .hidden { display: none !important; }
+
+  /* CONFIG PANEL */
+  .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .config-grid { grid-template-columns: 1fr; } }
+  .config-field label {
+    display: block; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.6px; color: var(--muted); margin-bottom: 4px;
+  }
+  .config-field input {
+    width: 100%; padding: 7px 10px; border: 1px solid var(--border);
+    border-radius: 4px; font-family: var(--mono); font-size: 11px; background: var(--bg);
+  }
+  .config-field input:focus { outline: none; border-color: var(--accent); background: #fff; }
+  .config-note { font-size: 10px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
+  .config-saved-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--accent-light); color: var(--accent);
+    border: 1px solid #b8d4b4; border-radius: 4px;
+    padding: 4px 10px; font-size: 11px; margin-left: auto;
+  }
+
+  details { margin-top: 16px; }
+  details summary {
+    cursor: pointer; font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.5px; list-style: none;
+    display: flex; align-items: center; gap: 6px;
+  }
+  details summary::before { content: '▶'; font-size: 9px; transition: transform 0.2s; }
+  details[open] summary::before { transform: rotate(90deg); }
+  details .inner { margin-top: 14px; }
+
+  .row-count { font-size: 11px; color: var(--muted); margin-left: auto; }
+
+  /* First-run config overlay */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+    display: flex; align-items: center; justify-content: center; z-index: 100;
+  }
+  .overlay-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 32px; max-width: 560px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  }
+  .overlay-title { font-family: var(--serif); font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .overlay-sub { color: var(--muted); font-size: 11px; margin-bottom: 20px; line-height: 1.6; }
+  .overlay .config-grid { margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<!-- FIRST-RUN CONFIG OVERLAY -->
+<div class="overlay hidden" id="config-overlay">
+  <div class="overlay-box">
+    <div class="overlay-title">⚙️ One-time Setup</div>
+    <div class="overlay-sub">
+      Enter your SharePoint credentials below. These are saved to this browser only — they never leave your device and are not stored in the tool code.
+      You will not be asked again on this device.
+    </div>
+    <div class="config-grid">
+      <div class="config-field">
+        <label>Tenant ID</label>
+        <input type="text" id="setup-tenant" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+      </div>
+      <div class="config-field">
+        <label>Client ID</label>
+        <input type="text" id="setup-client" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+      </div>
+      <div class="config-field" style="grid-column:1/-1">
+        <label>Client Secret</label>
+        <input type="password" id="setup-secret" placeholder="Your Azure app secret">
+      </div>
+      <div class="config-field">
+        <label>SharePoint Site</label>
+        <input type="text" id="setup-site" placeholder="yourcompany.sharepoint.com">
+      </div>
+      <div class="config-field">
+        <label>File Path</label>
+        <input type="text" id="setup-filepath" placeholder="/Shared Documents/Transplanting Diary.xlsm">
+      </div>
+    </div>
+    <div class="config-note" style="margin-bottom:14px;">
+      ⚠ To find these values: Azure Portal → App registrations → your app → Overview (Tenant ID, Client ID) and Certificates &amp; secrets (Client Secret).
+    </div>
+    <div class="btn-row" style="margin-top:0;">
+      <button class="btn btn-primary" id="setup-save-btn">💾 Save &amp; Continue</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <h1>Transplanting Diary Tool</h1>
+  <span>Ardanlea Nurseries</span>
+</header>
+
+<div class="container">
+
+  <div class="steps">
+    <div class="step active" id="step1"><div class="step-num">1</div> Upload Sheet</div>
+    <div class="step" id="step2"><div class="step-num">2</div> AI Reading</div>
+    <div class="step" id="step3"><div class="step-num">3</div> Review &amp; Edit</div>
+    <div class="step" id="step4"><div class="step-num">4</div> Write to Diary</div>
+  </div>
+
+  <!-- STAGE 1: UPLOAD -->
+  <div id="stage-upload">
+    <div class="panel">
+      <div class="panel-title">📷 Upload Transplanting Sheet Photo</div>
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="file-input" accept="image/*">
+        <div class="upload-icon">📄</div>
+        <div class="upload-label">Drop the WhatsApp photo here</div>
+        <div class="upload-sub">or click to browse · JPG, PNG, HEIC accepted</div>
+      </div>
+      <div id="preview-wrap" class="hidden" style="margin-top:16px;">
+        <img id="preview-img" class="preview-img" alt="Sheet preview">
+        <div class="btn-row">
+          <button class="btn btn-primary" id="read-btn">🤖 Read with AI</button>
+          <button class="btn btn-secondary" id="change-img-btn">Change image</button>
+        </div>
+      </div>
+    </div>
+
+    <details>
+      <summary>SharePoint configuration <span id="creds-badge" class="config-saved-badge hidden">✓ Credentials saved</span></summary>
+      <div class="inner panel">
+        <div class="config-grid">
+          <div class="config-field">
+            <label>Tenant ID</label>
+            <input type="text" id="cfg-tenant">
+          </div>
+          <div class="config-field">
+            <label>Client ID</label>
+            <input type="text" id="cfg-client">
+          </div>
+          <div class="config-field" style="grid-column:1/-1">
+            <label>Client Secret</label>
+            <input type="password" id="cfg-secret">
+          </div>
+          <div class="config-field">
+            <label>SharePoint Site</label>
+            <input type="text" id="cfg-site">
+          </div>
+          <div class="config-field" style="grid-column:1/-1">
+            <label>File Path in SharePoint</label>
+            <input type="text" id="cfg-filepath" placeholder="/Shared Documents/Transplanting Diary.xlsm">
+          </div>
+        </div>
+        <p class="config-note">Credentials are stored in your browser's local storage — never in the tool code or transmitted anywhere except directly to Microsoft Graph API.</p>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="save-creds-btn">💾 Save credentials</button>
+          <button class="btn btn-danger" id="clear-creds-btn">🗑 Clear saved credentials</button>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- STAGE 2: READING -->
+  <div id="stage-reading" class="hidden">
+    <div class="panel">
+      <div class="panel-title">🤖 AI Reading Sheet...</div>
+      <div class="status-bar status-info">
+        <div class="spinner"></div>
+        <span id="reading-status">Sending image to Claude for analysis...</span>
+      </div>
+      <img id="reading-preview" class="preview-img" style="margin-top:12px; opacity:0.6;" alt="">
+    </div>
+  </div>
+
+  <!-- STAGE 3: REVIEW -->
+  <div id="stage-review" class="hidden">
+    <div class="panel">
+      <div class="panel-title">
+        ✏️ Review &amp; Edit Extracted Data
+        <span class="row-count" id="row-count"></span>
+      </div>
+      <div id="review-status" class="status-bar status-warn hidden">
+        ⚠ Amber cells were uncertain — please verify against the original sheet before confirming.
+      </div>
+      <div class="meta-grid" id="meta-grid">
+        <div class="meta-field">
+          <label>Season (AU/ES/SU/CH)</label>
+          <input type="text" id="meta-season" placeholder="AU">
+        </div>
+        <div class="meta-field">
+          <label>Trans Date (dd/mm/yyyy)</label>
+          <input type="text" id="meta-date" placeholder="04/06/2025">
+        </div>
+        <div class="meta-field">
+          <label>Week No</label>
+          <input type="text" id="meta-week" placeholder="23">
+        </div>
+        <div class="meta-field">
+          <label>Growing Medium</label>
+          <input type="text" id="meta-medium" placeholder="COIR 18 F">
+        </div>
+      </div>
+      <div class="review-table-wrap">
+        <table id="review-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Machine No.</th>
+              <th>Plug Code</th>
+              <th>Tray Size</th>
+              <th>No. Trays</th>
+              <th>End Pack</th>
+              <th>Type / Variety</th>
+              <th>Despatch</th>
+              <th>Shelves/Trolley</th>
+              <th>Breakdown</th>
+              <th>Total Plants</th>
+              <th>Batch No.</th>
+              <th>Location</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="review-tbody"></tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <span><span class="legend-swatch" style="background:var(--warn-light);border:1px solid var(--warn);"></span> Uncertain — verify</span>
+        <span><span class="legend-swatch" style="background:#fff;border:1px solid var(--border);"></span> Confident read</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="confirm-btn">✅ Confirm &amp; Write to Diary</button>
+        <button class="btn btn-secondary" id="restart-btn">↩ Start Over</button>
+        <button class="btn btn-secondary" id="add-row-btn">+ Add Row</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAGE 4: WRITING -->
+  <div id="stage-writing" class="hidden">
+    <div class="panel">
+      <div class="panel-title">📝 Writing to SharePoint...</div>
+      <div class="status-bar status-info">
+        <div class="spinner"></div>
+        <span id="writing-status">Authenticating with Microsoft...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAGE 5: SUCCESS -->
+  <div id="stage-success" class="hidden">
+    <div class="panel">
+      <div class="success-box">
+        <div class="success-icon">✅</div>
+        <div class="success-title">Diary Updated Successfully</div>
+        <div class="success-sub" id="success-detail"></div>
+        <div class="btn-row" style="justify-content:center; margin-top:20px;">
+          <button class="btn btn-primary" id="another-btn">Process Another Sheet</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div id="stage-error" class="hidden">
+    <div class="panel">
+      <div class="status-bar status-error" id="error-msg"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="error-restart-btn">↩ Start Over</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── localStorage key ───────────────────────────────────────────────────────────
+const LS_KEY = 'transplanting_tool_creds';
+
+// ── Load / Save credentials ────────────────────────────────────────────────────
+function loadCreds() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveCreds(obj) {
+  localStorage.setItem(LS_KEY, JSON.stringify(obj));
+}
+function clearCreds() {
+  localStorage.removeItem(LS_KEY);
+}
+function populateFields(creds) {
+  document.getElementById('cfg-tenant').value   = creds.tenant   || '';
+  document.getElementById('cfg-client').value   = creds.client   || '';
+  document.getElementById('cfg-secret').value   = creds.secret   || '';
+  document.getElementById('cfg-site').value     = creds.site     || '';
+  document.getElementById('cfg-filepath').value = creds.filepath || '';
+}
+function readFields() {
+  return {
+    tenant:   document.getElementById('cfg-tenant').value.trim(),
+    client:   document.getElementById('cfg-client').value.trim(),
+    secret:   document.getElementById('cfg-secret').value.trim(),
+    site:     document.getElementById('cfg-site').value.trim(),
+    filepath: document.getElementById('cfg-filepath').value.trim(),
+  };
+}
+function updateBadge(hasCreds) {
+  document.getElementById('creds-badge').classList.toggle('hidden', !hasCreds);
+}
+
+// ── On load: check for saved creds ────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const creds = loadCreds();
+  const hasAll = creds.tenant && creds.client && creds.secret && creds.site && creds.filepath;
+  if (hasAll) {
+    populateFields(creds);
+    updateBadge(true);
+  } else {
+    // Show first-run overlay
+    document.getElementById('config-overlay').classList.remove('hidden');
+    // Pre-fill overlay from any partial saved data
+    document.getElementById('setup-tenant').value   = creds.tenant   || '';
+    document.getElementById('setup-client').value   = creds.client   || '';
+    document.getElementById('setup-secret').value   = creds.secret   || '';
+    document.getElementById('setup-site').value     = creds.site     || '';
+    document.getElementById('setup-filepath').value = creds.filepath || '';
+  }
+});
+
+// ── Setup overlay save ─────────────────────────────────────────────────────────
+document.getElementById('setup-save-btn').addEventListener('click', () => {
+  const creds = {
+    tenant:   document.getElementById('setup-tenant').value.trim(),
+    client:   document.getElementById('setup-client').value.trim(),
+    secret:   document.getElementById('setup-secret').value.trim(),
+    site:     document.getElementById('setup-site').value.trim(),
+    filepath: document.getElementById('setup-filepath').value.trim(),
+  };
+  if (!creds.tenant || !creds.client || !creds.secret || !creds.site || !creds.filepath) {
+    alert('Please fill in all fields.');
+    return;
+  }
+  saveCreds(creds);
+  populateFields(creds);
+  updateBadge(true);
+  document.getElementById('config-overlay').classList.add('hidden');
+});
+
+// ── Config panel save/clear ────────────────────────────────────────────────────
+document.getElementById('save-creds-btn').addEventListener('click', () => {
+  const creds = readFields();
+  saveCreds(creds);
+  updateBadge(!!(creds.tenant && creds.client && creds.secret));
+  alert('Credentials saved to this browser.');
+});
+document.getElementById('clear-creds-btn').addEventListener('click', () => {
+  if (confirm('Clear all saved credentials from this browser?')) {
+    clearCreds();
+    populateFields({});
+    updateBadge(false);
+  }
+});
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let imageBase64 = null;
+let imageType = null;
+let extractedRows = [];
+
+const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
+
+// ── Stage management ───────────────────────────────────────────────────────────
+function showStage(name) {
+  ['upload','reading','review','writing','success','error'].forEach(s => {
+    document.getElementById('stage-'+s).classList.toggle('hidden', s !== name);
+  });
+  const stepMap = { upload:1, reading:2, review:3, writing:4, success:4, error:1 };
+  const active = stepMap[name] || 1;
+  [1,2,3,4].forEach(i => {
+    const el = document.getElementById('step'+i);
+    el.className = 'step' + (i === active ? ' active' : i < active ? ' done' : '');
+  });
+}
+function setStatus(id, msg) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = msg;
+}
+
+// ── Image upload ───────────────────────────────────────────────────────────────
+const uploadZone   = document.getElementById('upload-zone');
+const fileInput    = document.getElementById('file-input');
+const previewWrap  = document.getElementById('preview-wrap');
+const previewImg   = document.getElementById('preview-img');
+
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); uploadZone.classList.remove('dragover');
+  handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
+document.getElementById('change-img-btn').addEventListener('click', () => fileInput.click());
+
+function handleFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const result = e.target.result;
+    imageBase64 = result.split(',')[1];
+    imageType = file.type;
+    previewImg.src = result;
+    previewWrap.classList.remove('hidden');
+    uploadZone.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── AI Reading ─────────────────────────────────────────────────────────────────
+document.getElementById('read-btn').addEventListener('click', async () => {
+  if (!imageBase64) return;
+  showStage('reading');
+  document.getElementById('reading-preview').src = previewImg.src;
+
+  const prompt = `You are reading a handwritten transplanting sheet from a UK plant nursery. Extract ALL data rows from this sheet into structured JSON.
+
+The sheet has these columns (map carefully):
+- machine_no: Machine number (e.g. C2138, Y296, CA31)
+- plug_code: 4-character plug code (e.g. NGLV, DMSO, NGTP) — CRITICAL field, check carefully against known format
+- tray_size: Plug tray size (numeric, e.g. 50, 104, 264)
+- num_trays: Number of plug trays (numeric)
+- end_pack: End pack/pot size (e.g. 1L, 5L, 10.5, 28 Tray)
+- variety: Type/variety description (e.g. NGI Color Power Lavender) — NOTE: this is filled in by formula in the spreadsheet based on plug code, so if handwriting is unclear here, focus on getting plug_code right
+- despatch: Despatch code (e.g. Cat-A, Cat-D, Travel)
+- shelves: Shelves per trolley (numeric)
+- breakdown: Amount transplanted breakdown (e.g. 6+16+2, 34+31+11)
+- total: Total plants (numeric)
+- batch: Batch number or label (e.g. 12, -, BATCH 2)
+- location: Location (e.g. S4 blk3, S2, Site 4 Blk 4)
+
+Also extract header info:
+- week_no, coir_ref, date, season (AU/ES/SU/CH), growing_medium
+
+IMPORTANT NOTES:
+- Writers are often European — European 1s can look like 7s, and 7s often have a horizontal stroke
+- Plug codes are ALWAYS exactly 4 uppercase letters — never numbers
+- Machine numbers start with C, Y, or CA followed by digits
+- Ignore any separator rows (like "Batch 2") that have no machine number
+- The variety name is formula-driven in the spreadsheet so prioritise accuracy of plug_code above all else
+
+Return ONLY valid JSON, no explanation, no markdown:
+{
+  "header": {
+    "week_no": "23",
+    "coir_ref": "9C1 trial",
+    "date": "04/06/2025",
+    "season": "AU",
+    "growing_medium": "COIR 18 F"
+  },
+  "rows": [
+    {
+      "machine_no": { "value": "C2138", "uncertain": false },
+      "plug_code":  { "value": "NGLV",  "uncertain": false },
+      "tray_size":  { "value": "50",    "uncertain": false },
+      "num_trays":  { "value": "28",    "uncertain": false },
+      "end_pack":   { "value": "1L",    "uncertain": false },
+      "variety":    { "value": "NGI Color Power Lavender", "uncertain": false },
+      "despatch":   { "value": "Cat-A", "uncertain": false },
+      "shelves":    { "value": "6",     "uncertain": false },
+      "breakdown":  { "value": "6+16+2","uncertain": false },
+      "total":      { "value": "1282",  "uncertain": false },
+      "batch":      { "value": "12",    "uncertain": false },
+      "location":   { "value": "S4 blk3","uncertain": false }
+    }
+  ]
+}`;
+
+  try {
+    setStatus('reading-status', 'Sending image to Claude for analysis...');
+    const resp = await fetch(ANTHROPIC_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: imageType, data: imageBase64 } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    if (!resp.ok) {
+      const errData = await resp.json().catch(() => ({}));
+      throw new Error(errData.error?.message || `API error ${resp.status}`);
+    }
+    const data = await resp.json();
+    const text = data.content.find(b => b.type === 'text')?.text || '';
+
+    setStatus('reading-status', 'Parsing response...');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    if (parsed.header) {
+      document.getElementById('meta-season').value = parsed.header.season || '';
+      document.getElementById('meta-date').value   = parsed.header.date   || '';
+      document.getElementById('meta-week').value   = parsed.header.week_no || '';
+      document.getElementById('meta-medium').value = parsed.header.growing_medium || '';
+    }
+
+    extractedRows = parsed.rows || [];
+    renderReviewTable(extractedRows);
+    showStage('review');
+
+    const hasUncertain = extractedRows.some(r => Object.values(r).some(v => v && v.uncertain));
+    document.getElementById('review-status').classList.toggle('hidden', !hasUncertain);
+    document.getElementById('row-count').textContent =
+      `${extractedRows.length} row${extractedRows.length !== 1 ? 's' : ''} found`;
+
+  } catch (err) {
+    showError('AI reading failed: ' + err.message);
+  }
+});
+
+// ── Review table ───────────────────────────────────────────────────────────────
+const FIELDS = ['machine_no','plug_code','tray_size','num_trays','end_pack','variety','despatch','shelves','breakdown','total','batch','location'];
+
+function renderReviewTable(rows) {
+  document.getElementById('review-tbody').innerHTML = '';
+  rows.forEach((row, i) => renderRow(row, i));
+}
+
+function renderRow(row, i) {
+  const tr = document.createElement('tr');
+  tr.dataset.idx = i;
+  const tdNum = document.createElement('td');
+  tdNum.textContent = i + 1;
+  tdNum.style.color = 'var(--muted)';
+  tr.appendChild(tdNum);
+
+  FIELDS.forEach(field => {
+    const cell = row[field] || { value: '', uncertain: false };
+    const td = document.createElement('td');
+    if (cell.uncertain) td.classList.add('uncertain');
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.value = cell.value || '';
+    inp.addEventListener('input', () => {
+      extractedRows[i][field] = { value: inp.value, uncertain: false };
+      td.classList.remove('uncertain');
+    });
+    td.appendChild(inp);
+    tr.appendChild(td);
+  });
+
+  const tdDel = document.createElement('td');
+  const delBtn = document.createElement('button');
+  delBtn.className = 'del-btn';
+  delBtn.textContent = '✕';
+  delBtn.addEventListener('click', () => {
+    extractedRows.splice(i, 1);
+    renderReviewTable(extractedRows);
+    document.getElementById('row-count').textContent =
+      `${extractedRows.length} row${extractedRows.length !== 1 ? 's' : ''} found`;
+  });
+  tdDel.appendChild(delBtn);
+  tr.appendChild(tdDel);
+  document.getElementById('review-tbody').appendChild(tr);
+}
+
+document.getElementById('add-row-btn').addEventListener('click', () => {
+  const empty = {};
+  FIELDS.forEach(f => empty[f] = { value: '', uncertain: false });
+  extractedRows.push(empty);
+  renderReviewTable(extractedRows);
+});
+
+// ── Write to SharePoint ────────────────────────────────────────────────────────
+document.getElementById('confirm-btn').addEventListener('click', async () => {
+  const creds = loadCreds();
+  if (!creds.tenant || !creds.client || !creds.secret) {
+    showError('SharePoint credentials not saved. Expand the configuration section and save your credentials first.');
+    return;
+  }
+
+  showStage('writing');
+
+  try {
+    setStatus('writing-status', 'Authenticating with Microsoft Graph...');
+    const tokenResp = await fetch(`https://login.microsoftonline.com/${creds.tenant}/oauth2/v2.0/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: creds.client,
+        client_secret: creds.secret,
+        scope: 'https://graph.microsoft.com/.default'
+      })
+    });
+
+    if (!tokenResp.ok) {
+      const err = await tokenResp.json();
+      throw new Error(`Auth failed: ${err.error_description || err.error}`);
+    }
+
+    const token = (await tokenResp.json()).access_token;
+
+    setStatus('writing-status', 'Locating file in SharePoint...');
+    const siteResp = await fetch(`https://graph.microsoft.com/v1.0/sites/${creds.site}:/`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!siteResp.ok) throw new Error('Could not find SharePoint site — check site URL in config.');
+    const siteId = (await siteResp.json()).id;
+
+    const driveResp = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/drive`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const driveId = (await driveResp.json()).id;
+
+    setStatus('writing-status', 'Downloading current diary file...');
+    const encodedPath = creds.filepath.replace(/ /g, '%20');
+    const fileResp = await fetch(
+      `https://graph.microsoft.com/v1.0/drives/${driveId}/root:${encodedPath}:/content`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (!fileResp.ok) throw new Error(`Could not download file (${fileResp.status}) — check file path in config.`);
+    const fileBuffer = await fileResp.arrayBuffer();
+
+    setStatus('writing-status', 'Adding new rows to spreadsheet...');
+    const XLSX = await loadXLSX();
+    const wb = XLSX.read(new Uint8Array(fileBuffer), { type: 'array', cellStyles: true });
+    const ws = wb.Sheets['Main'];
+    if (!ws) throw new Error('Could not find "Main" sheet in workbook.');
+
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    let lastRow = range.e.r;
+
+    const season  = document.getElementById('meta-season').value || 'AU';
+    const transDate = document.getElementById('meta-date').value || '';
+    const weekNo  = document.getElementById('meta-week').value || '';
+    const medium  = document.getElementById('meta-medium').value || '';
+
+    // Parse date to Excel serial
+    let dateSerial = transDate;
+    let dayNum = '', dayName = '';
+    const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    try {
+      const parts = transDate.match(/(\d+)[\/\-](\d+)[\/\-](\d+)/);
+      if (parts) {
+        const d = new Date(Number(parts[3]), Number(parts[2])-1, Number(parts[1]));
+        dateSerial = Math.floor((d - new Date(1899,11,30)) / 86400000);
+        dayNum = d.getDay() === 0 ? 7 : d.getDay();
+        dayName = dayNames[d.getDay()];
+      }
+    } catch(e) {}
+
+    extractedRows.forEach((row, i) => {
+      const r = lastRow + 1 + i;
+      const get = f => (row[f] && row[f].value) || '';
+      const set = (col, val, t) => {
+        const addr = XLSX.utils.encode_cell({ r, c: col });
+        ws[addr] = { v: val, t: t || (typeof val === 'number' ? 'n' : 's') };
+      };
+
+      set(0,  season);
+      set(1,  get('machine_no'));
+      set(2,  '');
+      set(3,  '');
+      set(4,  get('plug_code'));
+      set(5,  typeof dateSerial === 'number' ? dateSerial : transDate, typeof dateSerial === 'number' ? 'n' : 's');
+      set(6,  weekNo ? Number(weekNo) : '');
+      set(7,  dayNum ? Number(dayNum) : '');
+      set(8,  dayName);
+      set(9,  get('tray_size') ? Number(get('tray_size')) : '');
+      set(10, get('num_trays') ? Number(get('num_trays')) : '');
+      set(11, get('end_pack'));
+      set(12, '');
+      set(13, get('plug_code'));
+      set(14, get('variety'));
+      set(15, get('despatch'));
+      set(16, get('total') ? Number(get('total')) : '');
+      set(17, get('total') ? Number(get('total')) : '');
+      set(18, '');
+      set(19, get('batch'));
+      set(20, get('location'));
+      set(21, medium);
+      set(22, get('breakdown'));
+    });
+
+    range.e.r = lastRow + extractedRows.length;
+    ws['!ref'] = XLSX.utils.encode_range(range);
+
+    const outBuffer = XLSX.write(wb, { type: 'array', bookType: 'xlsm', cellStyles: true });
+
+    setStatus('writing-status', 'Uploading updated file to SharePoint...');
+    const uploadResp = await fetch(
+      `https://graph.microsoft.com/v1.0/drives/${driveId}/root:${encodedPath}:/content`,
+      {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/vnd.ms-excel.sheet.macroEnabled.12'
+        },
+        body: new Uint8Array(outBuffer)
+      }
+    );
+
+    if (!uploadResp.ok) {
+      const errText = await uploadResp.text();
+      throw new Error(`Upload failed (${uploadResp.status}): ${errText}`);
+    }
+
+    document.getElementById('success-detail').textContent =
+      `${extractedRows.length} row${extractedRows.length !== 1 ? 's' : ''} added to the diary. SharePoint version history updated automatically.`;
+    showStage('success');
+
+  } catch (err) {
+    showError('SharePoint write failed: ' + err.message);
+  }
+});
+
+// ── SheetJS loader ─────────────────────────────────────────────────────────────
+function loadXLSX() {
+  return new Promise((resolve, reject) => {
+    if (window.XLSX) return resolve(window.XLSX);
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = () => resolve(window.XLSX);
+    s.onerror = () => reject(new Error('Failed to load SheetJS'));
+    document.head.appendChild(s);
+  });
+}
+
+// ── Misc ───────────────────────────────────────────────────────────────────────
+function showError(msg) {
+  document.getElementById('error-msg').textContent = '❌ ' + msg;
+  showStage('error');
+}
+
+function restart() {
+  imageBase64 = null; imageType = null; extractedRows = [];
+  previewImg.src = '';
+  previewWrap.classList.add('hidden');
+  uploadZone.style.display = '';
+  fileInput.value = '';
+  document.getElementById('review-tbody').innerHTML = '';
+  showStage('upload');
+}
+
+document.getElementById('restart-btn').addEventListener('click', restart);
+document.getElementById('error-restart-btn').addEventListener('click', restart);
+document.getElementById('another-btn').addEventListener('click', restart);
+</script>
+</body>
+</html>
