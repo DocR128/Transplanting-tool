@@ -21,25 +21,12 @@
     --mono: 'DM Mono', monospace;
     --serif: 'Fraunces', Georgia, serif;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 13px;
-    min-height: 100vh;
-  }
+  body { background: var(--bg); color: var(--text); font-family: var(--mono); font-size: 13px; min-height: 100vh; }
 
   header {
-    background: var(--accent);
-    color: #fff;
-    padding: 18px 32px;
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    border-bottom: 3px solid #1a3a16;
+    background: var(--accent); color: #fff; padding: 18px 32px;
+    display: flex; align-items: baseline; gap: 16px; border-bottom: 3px solid #1a3a16;
   }
   header h1 { font-family: var(--serif); font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
   header span { font-size: 11px; opacity: 0.7; letter-spacing: 0.5px; text-transform: uppercase; }
@@ -47,8 +34,8 @@
   .container { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
 
   .steps {
-    display: flex; gap: 0; margin-bottom: 28px;
-    border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--surface);
+    display: flex; margin-bottom: 28px; border: 1px solid var(--border);
+    border-radius: 6px; overflow: hidden; background: var(--surface);
   }
   .step {
     flex: 1; padding: 10px 16px; font-size: 11px; text-transform: uppercase;
@@ -66,29 +53,11 @@
   .step.active .step-num { background: rgba(255,255,255,0.3); color: #fff; }
   .step.done .step-num { background: var(--accent); color: #fff; }
 
-  .panel {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 24px; margin-bottom: 20px;
-  }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 20px; }
   .panel-title {
     font-family: var(--serif); font-size: 16px; font-weight: 600;
     margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
     display: flex; align-items: center; gap: 10px;
-  }
-
-  .upload-zone {
-    border: 2px dashed var(--border); border-radius: 8px; padding: 48px 24px;
-    text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg);
-  }
-  .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: var(--accent-light); }
-  .upload-zone input { display: none; }
-  .upload-icon { font-size: 36px; margin-bottom: 12px; }
-  .upload-label { font-family: var(--serif); font-size: 15px; margin-bottom: 6px; }
-  .upload-sub { color: var(--muted); font-size: 11px; }
-
-  .preview-img {
-    max-width: 100%; max-height: 300px; border-radius: 6px;
-    border: 1px solid var(--border); display: block; margin: 0 auto;
   }
 
   .btn {
@@ -101,8 +70,6 @@
   .btn-primary:hover:not(:disabled) { background: #1f3f1c; }
   .btn-secondary { background: var(--border); color: var(--text); }
   .btn-secondary:hover:not(:disabled) { background: #c4b9a0; }
-  .btn-warn { background: var(--warn); color: #fff; }
-  .btn-warn:hover:not(:disabled) { background: #9e6819; }
   .btn-danger { background: var(--danger); color: #fff; }
   .btn-danger:hover:not(:disabled) { background: #6a1818; }
   .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
@@ -121,6 +88,20 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* JSON paste area */
+  .paste-area {
+    width: 100%; min-height: 160px; padding: 12px; border: 1px solid var(--border);
+    border-radius: 6px; font-family: var(--mono); font-size: 11px; background: var(--bg);
+    color: var(--text); resize: vertical; line-height: 1.5;
+  }
+  .paste-area:focus { outline: none; border-color: var(--accent); background: #fff; }
+  .paste-hint {
+    font-size: 11px; color: var(--muted); margin-bottom: 10px; line-height: 1.6;
+    padding: 10px 14px; background: var(--accent-light); border-radius: 5px;
+    border: 1px solid #b8d4b4;
+  }
+
+  /* Review table */
   .review-table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
   thead th {
@@ -153,14 +134,8 @@
     display: inline-block; vertical-align: middle; margin-right: 4px;
   }
 
-  .meta-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 12px; margin-bottom: 20px;
-  }
-  .meta-field label {
-    display: block; font-size: 10px; text-transform: uppercase;
-    letter-spacing: 0.6px; color: var(--muted); margin-bottom: 4px;
-  }
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .meta-field label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 4px; }
   .meta-field input {
     width: 100%; padding: 7px 10px; border: 1px solid var(--border);
     border-radius: 4px; font-family: var(--mono); font-size: 12px; background: var(--bg);
@@ -173,14 +148,12 @@
   .success-sub { color: var(--muted); font-size: 12px; }
 
   .hidden { display: none !important; }
+  .row-count { font-size: 11px; color: var(--muted); margin-left: auto; }
 
-  /* CONFIG PANEL */
+  /* Config */
   .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 600px) { .config-grid { grid-template-columns: 1fr; } }
-  .config-field label {
-    display: block; font-size: 10px; text-transform: uppercase;
-    letter-spacing: 0.6px; color: var(--muted); margin-bottom: 4px;
-  }
+  .config-field label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 4px; }
   .config-field input {
     width: 100%; padding: 7px 10px; border: 1px solid var(--border);
     border-radius: 4px; font-family: var(--mono); font-size: 11px; background: var(--bg);
@@ -189,35 +162,29 @@
   .config-note { font-size: 10px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
   .config-saved-badge {
     display: inline-flex; align-items: center; gap: 5px;
-    background: var(--accent-light); color: var(--accent);
-    border: 1px solid #b8d4b4; border-radius: 4px;
-    padding: 4px 10px; font-size: 11px; margin-left: auto;
+    background: var(--accent-light); color: var(--accent); border: 1px solid #b8d4b4;
+    border-radius: 4px; padding: 4px 10px; font-size: 11px; margin-left: auto;
   }
-
   details { margin-top: 16px; }
   details summary {
-    cursor: pointer; font-size: 11px; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.5px; list-style: none;
-    display: flex; align-items: center; gap: 6px;
+    cursor: pointer; font-size: 11px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.5px; list-style: none; display: flex; align-items: center; gap: 6px;
   }
   details summary::before { content: '▶'; font-size: 9px; transition: transform 0.2s; }
   details[open] summary::before { transform: rotate(90deg); }
   details .inner { margin-top: 14px; }
 
-  .row-count { font-size: 11px; color: var(--muted); margin-left: auto; }
-
-  /* First-run config overlay */
+  /* Overlay */
   .overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.55);
     display: flex; align-items: center; justify-content: center; z-index: 100;
   }
   .overlay-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 32px; max-width: 560px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 32px; max-width: 560px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.2);
   }
   .overlay-title { font-family: var(--serif); font-size: 18px; font-weight: 600; margin-bottom: 6px; }
   .overlay-sub { color: var(--muted); font-size: 11px; margin-bottom: 20px; line-height: 1.6; }
-  .overlay .config-grid { margin-bottom: 16px; }
 </style>
 </head>
 <body>
@@ -227,10 +194,9 @@
   <div class="overlay-box">
     <div class="overlay-title">⚙️ One-time Setup</div>
     <div class="overlay-sub">
-      Enter your SharePoint credentials below. These are saved to this browser only — they never leave your device and are not stored in the tool code.
-      You will not be asked again on this device.
+      Enter your SharePoint credentials below. These are saved to this browser only — they never leave your device and are not stored in the tool code. You will not be asked again on this device.
     </div>
-    <div class="config-grid">
+    <div class="config-grid" style="margin-bottom:16px;">
       <div class="config-field">
         <label>Tenant ID</label>
         <input type="text" id="setup-tenant" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
@@ -252,9 +218,6 @@
         <input type="text" id="setup-filepath" placeholder="/Shared Documents/Transplanting Diary.xlsm">
       </div>
     </div>
-    <div class="config-note" style="margin-bottom:14px;">
-      ⚠ To find these values: Azure Portal → App registrations → your app → Overview (Tenant ID, Client ID) and Certificates &amp; secrets (Client Secret).
-    </div>
     <div class="btn-row" style="margin-top:0;">
       <button class="btn btn-primary" id="setup-save-btn">💾 Save &amp; Continue</button>
     </div>
@@ -269,29 +232,24 @@
 <div class="container">
 
   <div class="steps">
-    <div class="step active" id="step1"><div class="step-num">1</div> Upload Sheet</div>
-    <div class="step" id="step2"><div class="step-num">2</div> AI Reading</div>
-    <div class="step" id="step3"><div class="step-num">3</div> Review &amp; Edit</div>
-    <div class="step" id="step4"><div class="step-num">4</div> Write to Diary</div>
+    <div class="step active" id="step1"><div class="step-num">1</div> Paste JSON</div>
+    <div class="step" id="step2"><div class="step-num">2</div> Review &amp; Edit</div>
+    <div class="step" id="step3"><div class="step-num">3</div> Write to Diary</div>
   </div>
 
-  <!-- STAGE 1: UPLOAD -->
-  <div id="stage-upload">
+  <!-- STAGE 1: PASTE JSON -->
+  <div id="stage-paste">
     <div class="panel">
-      <div class="panel-title">📷 Upload Transplanting Sheet Photo</div>
-      <div class="upload-zone" id="upload-zone">
-        <input type="file" id="file-input" accept="image/*">
-        <div class="upload-icon">📄</div>
-        <div class="upload-label">Drop the WhatsApp photo here</div>
-        <div class="upload-sub">or click to browse · JPG, PNG, HEIC accepted</div>
+      <div class="panel-title">📋 Paste Claude's JSON Output</div>
+      <div class="paste-hint">
+        Upload the WhatsApp photo to Claude, ask it to read the sheet, then paste the JSON it returns here. Claude will format it ready for this tool automatically.
       </div>
-      <div id="preview-wrap" class="hidden" style="margin-top:16px;">
-        <img id="preview-img" class="preview-img" alt="Sheet preview">
-        <div class="btn-row">
-          <button class="btn btn-primary" id="read-btn">🤖 Read with AI</button>
-          <button class="btn btn-secondary" id="change-img-btn">Change image</button>
-        </div>
+      <textarea class="paste-area" id="json-input" placeholder='Paste the JSON from Claude here...'></textarea>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="parse-btn">→ Load Data</button>
+        <button class="btn btn-secondary" id="clear-paste-btn">Clear</button>
       </div>
+      <div id="parse-error" class="status-bar status-error hidden" style="margin-top:12px; margin-bottom:0;"></div>
     </div>
 
     <details>
@@ -319,7 +277,7 @@
             <input type="text" id="cfg-filepath" placeholder="/Shared Documents/Transplanting Diary.xlsm">
           </div>
         </div>
-        <p class="config-note">Credentials are stored in your browser's local storage — never in the tool code or transmitted anywhere except directly to Microsoft Graph API.</p>
+        <p class="config-note">Credentials are stored in your browser's local storage only — never in the tool code or transmitted anywhere except directly to Microsoft Graph API.</p>
         <div class="btn-row">
           <button class="btn btn-primary" id="save-creds-btn">💾 Save credentials</button>
           <button class="btn btn-danger" id="clear-creds-btn">🗑 Clear saved credentials</button>
@@ -328,19 +286,7 @@
     </details>
   </div>
 
-  <!-- STAGE 2: READING -->
-  <div id="stage-reading" class="hidden">
-    <div class="panel">
-      <div class="panel-title">🤖 AI Reading Sheet...</div>
-      <div class="status-bar status-info">
-        <div class="spinner"></div>
-        <span id="reading-status">Sending image to Claude for analysis...</span>
-      </div>
-      <img id="reading-preview" class="preview-img" style="margin-top:12px; opacity:0.6;" alt="">
-    </div>
-  </div>
-
-  <!-- STAGE 3: REVIEW -->
+  <!-- STAGE 2: REVIEW -->
   <div id="stage-review" class="hidden">
     <div class="panel">
       <div class="panel-title">
@@ -348,9 +294,9 @@
         <span class="row-count" id="row-count"></span>
       </div>
       <div id="review-status" class="status-bar status-warn hidden">
-        ⚠ Amber cells were uncertain — please verify against the original sheet before confirming.
+        ⚠ Amber cells were flagged as uncertain by Claude — please verify against the original sheet before confirming.
       </div>
-      <div class="meta-grid" id="meta-grid">
+      <div class="meta-grid">
         <div class="meta-field">
           <label>Season (AU/ES/SU/CH)</label>
           <input type="text" id="meta-season" placeholder="AU">
@@ -369,7 +315,7 @@
         </div>
       </div>
       <div class="review-table-wrap">
-        <table id="review-table">
+        <table>
           <thead>
             <tr>
               <th>#</th>
@@ -403,7 +349,7 @@
     </div>
   </div>
 
-  <!-- STAGE 4: WRITING -->
+  <!-- STAGE 3: WRITING -->
   <div id="stage-writing" class="hidden">
     <div class="panel">
       <div class="panel-title">📝 Writing to SharePoint...</div>
@@ -414,7 +360,7 @@
     </div>
   </div>
 
-  <!-- STAGE 5: SUCCESS -->
+  <!-- SUCCESS -->
   <div id="stage-success" class="hidden">
     <div class="panel">
       <div class="success-box">
@@ -441,25 +387,17 @@
 </div>
 
 <script>
-// ── localStorage key ───────────────────────────────────────────────────────────
+// ── Credentials (localStorage) ─────────────────────────────────────────────────
 const LS_KEY = 'transplanting_tool_creds';
-
-// ── Load / Save credentials ────────────────────────────────────────────────────
-function loadCreds() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { return {}; }
-}
-function saveCreds(obj) {
-  localStorage.setItem(LS_KEY, JSON.stringify(obj));
-}
-function clearCreds() {
-  localStorage.removeItem(LS_KEY);
-}
-function populateFields(creds) {
-  document.getElementById('cfg-tenant').value   = creds.tenant   || '';
-  document.getElementById('cfg-client').value   = creds.client   || '';
-  document.getElementById('cfg-secret').value   = creds.secret   || '';
-  document.getElementById('cfg-site').value     = creds.site     || '';
-  document.getElementById('cfg-filepath').value = creds.filepath || '';
+function loadCreds() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { return {}; } }
+function saveCreds(o) { localStorage.setItem(LS_KEY, JSON.stringify(o)); }
+function clearCreds() { localStorage.removeItem(LS_KEY); }
+function populateFields(c) {
+  document.getElementById('cfg-tenant').value   = c.tenant   || '';
+  document.getElementById('cfg-client').value   = c.client   || '';
+  document.getElementById('cfg-secret').value   = c.secret   || '';
+  document.getElementById('cfg-site').value     = c.site     || '';
+  document.getElementById('cfg-filepath').value = c.filepath || '';
 }
 function readFields() {
   return {
@@ -470,203 +408,71 @@ function readFields() {
     filepath: document.getElementById('cfg-filepath').value.trim(),
   };
 }
-function updateBadge(hasCreds) {
-  document.getElementById('creds-badge').classList.toggle('hidden', !hasCreds);
-}
+function updateBadge(has) { document.getElementById('creds-badge').classList.toggle('hidden', !has); }
 
-// ── On load: check for saved creds ────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
-  const creds = loadCreds();
-  const hasAll = creds.tenant && creds.client && creds.secret && creds.site && creds.filepath;
-  if (hasAll) {
-    populateFields(creds);
-    updateBadge(true);
-  } else {
-    // Show first-run overlay
+  const c = loadCreds();
+  const ok = c.tenant && c.client && c.secret && c.site && c.filepath;
+  if (ok) { populateFields(c); updateBadge(true); }
+  else {
     document.getElementById('config-overlay').classList.remove('hidden');
-    // Pre-fill overlay from any partial saved data
-    document.getElementById('setup-tenant').value   = creds.tenant   || '';
-    document.getElementById('setup-client').value   = creds.client   || '';
-    document.getElementById('setup-secret').value   = creds.secret   || '';
-    document.getElementById('setup-site').value     = creds.site     || '';
-    document.getElementById('setup-filepath').value = creds.filepath || '';
+    document.getElementById('setup-tenant').value   = c.tenant   || '';
+    document.getElementById('setup-client').value   = c.client   || '';
+    document.getElementById('setup-secret').value   = c.secret   || '';
+    document.getElementById('setup-site').value     = c.site     || '';
+    document.getElementById('setup-filepath').value = c.filepath || '';
   }
 });
 
-// ── Setup overlay save ─────────────────────────────────────────────────────────
 document.getElementById('setup-save-btn').addEventListener('click', () => {
-  const creds = {
+  const c = {
     tenant:   document.getElementById('setup-tenant').value.trim(),
     client:   document.getElementById('setup-client').value.trim(),
     secret:   document.getElementById('setup-secret').value.trim(),
     site:     document.getElementById('setup-site').value.trim(),
     filepath: document.getElementById('setup-filepath').value.trim(),
   };
-  if (!creds.tenant || !creds.client || !creds.secret || !creds.site || !creds.filepath) {
-    alert('Please fill in all fields.');
-    return;
-  }
-  saveCreds(creds);
-  populateFields(creds);
-  updateBadge(true);
+  if (!c.tenant || !c.client || !c.secret || !c.site || !c.filepath) { alert('Please fill in all fields.'); return; }
+  saveCreds(c); populateFields(c); updateBadge(true);
   document.getElementById('config-overlay').classList.add('hidden');
 });
 
-// ── Config panel save/clear ────────────────────────────────────────────────────
 document.getElementById('save-creds-btn').addEventListener('click', () => {
-  const creds = readFields();
-  saveCreds(creds);
-  updateBadge(!!(creds.tenant && creds.client && creds.secret));
+  const c = readFields(); saveCreds(c);
+  updateBadge(!!(c.tenant && c.client && c.secret));
   alert('Credentials saved to this browser.');
 });
 document.getElementById('clear-creds-btn').addEventListener('click', () => {
-  if (confirm('Clear all saved credentials from this browser?')) {
-    clearCreds();
-    populateFields({});
-    updateBadge(false);
-  }
+  if (confirm('Clear all saved credentials from this browser?')) { clearCreds(); populateFields({}); updateBadge(false); }
 });
 
 // ── State ──────────────────────────────────────────────────────────────────────
-let imageBase64 = null;
-let imageType = null;
 let extractedRows = [];
-
-const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
 
 // ── Stage management ───────────────────────────────────────────────────────────
 function showStage(name) {
-  ['upload','reading','review','writing','success','error'].forEach(s => {
+  ['paste','review','writing','success','error'].forEach(s => {
     document.getElementById('stage-'+s).classList.toggle('hidden', s !== name);
   });
-  const stepMap = { upload:1, reading:2, review:3, writing:4, success:4, error:1 };
+  const stepMap = { paste:1, review:2, writing:3, success:3, error:1 };
   const active = stepMap[name] || 1;
-  [1,2,3,4].forEach(i => {
+  [1,2,3].forEach(i => {
     const el = document.getElementById('step'+i);
     el.className = 'step' + (i === active ? ' active' : i < active ? ' done' : '');
   });
 }
-function setStatus(id, msg) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = msg;
-}
+function setStatus(id, msg) { const el = document.getElementById(id); if (el) el.textContent = msg; }
 
-// ── Image upload ───────────────────────────────────────────────────────────────
-const uploadZone   = document.getElementById('upload-zone');
-const fileInput    = document.getElementById('file-input');
-const previewWrap  = document.getElementById('preview-wrap');
-const previewImg   = document.getElementById('preview-img');
+// ── JSON parsing ───────────────────────────────────────────────────────────────
+document.getElementById('parse-btn').addEventListener('click', () => {
+  const raw = document.getElementById('json-input').value.trim();
+  const errEl = document.getElementById('parse-error');
+  errEl.classList.add('hidden');
 
-uploadZone.addEventListener('click', () => fileInput.click());
-uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
-uploadZone.addEventListener('drop', e => {
-  e.preventDefault(); uploadZone.classList.remove('dragover');
-  handleFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
-document.getElementById('change-img-btn').addEventListener('click', () => fileInput.click());
-
-function handleFile(file) {
-  if (!file || !file.type.startsWith('image/')) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const result = e.target.result;
-    imageBase64 = result.split(',')[1];
-    imageType = file.type;
-    previewImg.src = result;
-    previewWrap.classList.remove('hidden');
-    uploadZone.style.display = 'none';
-  };
-  reader.readAsDataURL(file);
-}
-
-// ── AI Reading ─────────────────────────────────────────────────────────────────
-document.getElementById('read-btn').addEventListener('click', async () => {
-  if (!imageBase64) return;
-  showStage('reading');
-  document.getElementById('reading-preview').src = previewImg.src;
-
-  const prompt = `You are reading a handwritten transplanting sheet from a UK plant nursery. Extract ALL data rows from this sheet into structured JSON.
-
-The sheet has these columns (map carefully):
-- machine_no: Machine number (e.g. C2138, Y296, CA31)
-- plug_code: 4-character plug code (e.g. NGLV, DMSO, NGTP) — CRITICAL field, check carefully against known format
-- tray_size: Plug tray size (numeric, e.g. 50, 104, 264)
-- num_trays: Number of plug trays (numeric)
-- end_pack: End pack/pot size (e.g. 1L, 5L, 10.5, 28 Tray)
-- variety: Type/variety description (e.g. NGI Color Power Lavender) — NOTE: this is filled in by formula in the spreadsheet based on plug code, so if handwriting is unclear here, focus on getting plug_code right
-- despatch: Despatch code (e.g. Cat-A, Cat-D, Travel)
-- shelves: Shelves per trolley (numeric)
-- breakdown: Amount transplanted breakdown (e.g. 6+16+2, 34+31+11)
-- total: Total plants (numeric)
-- batch: Batch number or label (e.g. 12, -, BATCH 2)
-- location: Location (e.g. S4 blk3, S2, Site 4 Blk 4)
-
-Also extract header info:
-- week_no, coir_ref, date, season (AU/ES/SU/CH), growing_medium
-
-IMPORTANT NOTES:
-- Writers are often European — European 1s can look like 7s, and 7s often have a horizontal stroke
-- Plug codes are ALWAYS exactly 4 uppercase letters — never numbers
-- Machine numbers start with C, Y, or CA followed by digits
-- Ignore any separator rows (like "Batch 2") that have no machine number
-- The variety name is formula-driven in the spreadsheet so prioritise accuracy of plug_code above all else
-
-Return ONLY valid JSON, no explanation, no markdown:
-{
-  "header": {
-    "week_no": "23",
-    "coir_ref": "9C1 trial",
-    "date": "04/06/2025",
-    "season": "AU",
-    "growing_medium": "COIR 18 F"
-  },
-  "rows": [
-    {
-      "machine_no": { "value": "C2138", "uncertain": false },
-      "plug_code":  { "value": "NGLV",  "uncertain": false },
-      "tray_size":  { "value": "50",    "uncertain": false },
-      "num_trays":  { "value": "28",    "uncertain": false },
-      "end_pack":   { "value": "1L",    "uncertain": false },
-      "variety":    { "value": "NGI Color Power Lavender", "uncertain": false },
-      "despatch":   { "value": "Cat-A", "uncertain": false },
-      "shelves":    { "value": "6",     "uncertain": false },
-      "breakdown":  { "value": "6+16+2","uncertain": false },
-      "total":      { "value": "1282",  "uncertain": false },
-      "batch":      { "value": "12",    "uncertain": false },
-      "location":   { "value": "S4 blk3","uncertain": false }
-    }
-  ]
-}`;
+  if (!raw) { errEl.textContent = '❌ Nothing pasted yet.'; errEl.classList.remove('hidden'); return; }
 
   try {
-    setStatus('reading-status', 'Sending image to Claude for analysis...');
-    const resp = await fetch(ANTHROPIC_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: imageType, data: imageBase64 } },
-            { type: 'text', text: prompt }
-          ]
-        }]
-      })
-    });
-
-    if (!resp.ok) {
-      const errData = await resp.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `API error ${resp.status}`);
-    }
-    const data = await resp.json();
-    const text = data.content.find(b => b.type === 'text')?.text || '';
-
-    setStatus('reading-status', 'Parsing response...');
-    const clean = text.replace(/```json|```/g, '').trim();
+    const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
 
     if (parsed.header) {
@@ -677,6 +483,8 @@ Return ONLY valid JSON, no explanation, no markdown:
     }
 
     extractedRows = parsed.rows || [];
+    if (!extractedRows.length) throw new Error('No rows found in JSON.');
+
     renderReviewTable(extractedRows);
     showStage('review');
 
@@ -685,9 +493,15 @@ Return ONLY valid JSON, no explanation, no markdown:
     document.getElementById('row-count').textContent =
       `${extractedRows.length} row${extractedRows.length !== 1 ? 's' : ''} found`;
 
-  } catch (err) {
-    showError('AI reading failed: ' + err.message);
+  } catch(e) {
+    errEl.textContent = '❌ Could not parse JSON: ' + e.message;
+    errEl.classList.remove('hidden');
   }
+});
+
+document.getElementById('clear-paste-btn').addEventListener('click', () => {
+  document.getElementById('json-input').value = '';
+  document.getElementById('parse-error').classList.add('hidden');
 });
 
 // ── Review table ───────────────────────────────────────────────────────────────
@@ -700,10 +514,8 @@ function renderReviewTable(rows) {
 
 function renderRow(row, i) {
   const tr = document.createElement('tr');
-  tr.dataset.idx = i;
   const tdNum = document.createElement('td');
-  tdNum.textContent = i + 1;
-  tdNum.style.color = 'var(--muted)';
+  tdNum.textContent = i + 1; tdNum.style.color = 'var(--muted)';
   tr.appendChild(tdNum);
 
   FIELDS.forEach(field => {
@@ -711,28 +523,23 @@ function renderRow(row, i) {
     const td = document.createElement('td');
     if (cell.uncertain) td.classList.add('uncertain');
     const inp = document.createElement('input');
-    inp.type = 'text';
-    inp.value = cell.value || '';
+    inp.type = 'text'; inp.value = cell.value || '';
     inp.addEventListener('input', () => {
       extractedRows[i][field] = { value: inp.value, uncertain: false };
       td.classList.remove('uncertain');
     });
-    td.appendChild(inp);
-    tr.appendChild(td);
+    td.appendChild(inp); tr.appendChild(td);
   });
 
   const tdDel = document.createElement('td');
   const delBtn = document.createElement('button');
-  delBtn.className = 'del-btn';
-  delBtn.textContent = '✕';
+  delBtn.className = 'del-btn'; delBtn.textContent = '✕';
   delBtn.addEventListener('click', () => {
-    extractedRows.splice(i, 1);
-    renderReviewTable(extractedRows);
+    extractedRows.splice(i, 1); renderReviewTable(extractedRows);
     document.getElementById('row-count').textContent =
       `${extractedRows.length} row${extractedRows.length !== 1 ? 's' : ''} found`;
   });
-  tdDel.appendChild(delBtn);
-  tr.appendChild(tdDel);
+  tdDel.appendChild(delBtn); tr.appendChild(tdDel);
   document.getElementById('review-tbody').appendChild(tr);
 }
 
@@ -750,7 +557,6 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
     showError('SharePoint credentials not saved. Expand the configuration section and save your credentials first.');
     return;
   }
-
   showStage('writing');
 
   try {
@@ -765,24 +571,15 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
         scope: 'https://graph.microsoft.com/.default'
       })
     });
-
-    if (!tokenResp.ok) {
-      const err = await tokenResp.json();
-      throw new Error(`Auth failed: ${err.error_description || err.error}`);
-    }
-
+    if (!tokenResp.ok) { const e = await tokenResp.json(); throw new Error(`Auth failed: ${e.error_description || e.error}`); }
     const token = (await tokenResp.json()).access_token;
 
     setStatus('writing-status', 'Locating file in SharePoint...');
-    const siteResp = await fetch(`https://graph.microsoft.com/v1.0/sites/${creds.site}:/`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const siteResp = await fetch(`https://graph.microsoft.com/v1.0/sites/${creds.site}:/`, { headers: { Authorization: `Bearer ${token}` } });
     if (!siteResp.ok) throw new Error('Could not find SharePoint site — check site URL in config.');
     const siteId = (await siteResp.json()).id;
 
-    const driveResp = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/drive`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const driveResp = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/drive`, { headers: { Authorization: `Bearer ${token}` } });
     const driveId = (await driveResp.json()).id;
 
     setStatus('writing-status', 'Downloading current diary file...');
@@ -803,14 +600,12 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
     const range = XLSX.utils.decode_range(ws['!ref']);
     let lastRow = range.e.r;
 
-    const season  = document.getElementById('meta-season').value || 'AU';
-    const transDate = document.getElementById('meta-date').value || '';
-    const weekNo  = document.getElementById('meta-week').value || '';
-    const medium  = document.getElementById('meta-medium').value || '';
+    const season    = document.getElementById('meta-season').value || 'AU';
+    const transDate = document.getElementById('meta-date').value   || '';
+    const weekNo    = document.getElementById('meta-week').value   || '';
+    const medium    = document.getElementById('meta-medium').value || '';
 
-    // Parse date to Excel serial
-    let dateSerial = transDate;
-    let dayNum = '', dayName = '';
+    let dateSerial = transDate, dayNum = '', dayName = '';
     const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     try {
       const parts = transDate.match(/(\d+)[\/\-](\d+)[\/\-](\d+)/);
@@ -829,7 +624,6 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
         const addr = XLSX.utils.encode_cell({ r, c: col });
         ws[addr] = { v: val, t: t || (typeof val === 'number' ? 'n' : 's') };
       };
-
       set(0,  season);
       set(1,  get('machine_no'));
       set(2,  '');
@@ -865,26 +659,17 @@ document.getElementById('confirm-btn').addEventListener('click', async () => {
       `https://graph.microsoft.com/v1.0/drives/${driveId}/root:${encodedPath}:/content`,
       {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/vnd.ms-excel.sheet.macroEnabled.12'
-        },
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/vnd.ms-excel.sheet.macroEnabled.12' },
         body: new Uint8Array(outBuffer)
       }
     );
-
-    if (!uploadResp.ok) {
-      const errText = await uploadResp.text();
-      throw new Error(`Upload failed (${uploadResp.status}): ${errText}`);
-    }
+    if (!uploadResp.ok) { const t = await uploadResp.text(); throw new Error(`Upload failed (${uploadResp.status}): ${t}`); }
 
     document.getElementById('success-detail').textContent =
       `${extractedRows.length} row${extractedRows.length !== 1 ? 's' : ''} added to the diary. SharePoint version history updated automatically.`;
     showStage('success');
 
-  } catch (err) {
-    showError('SharePoint write failed: ' + err.message);
-  }
+  } catch(err) { showError('SharePoint write failed: ' + err.message); }
 });
 
 // ── SheetJS loader ─────────────────────────────────────────────────────────────
@@ -900,19 +685,14 @@ function loadXLSX() {
 }
 
 // ── Misc ───────────────────────────────────────────────────────────────────────
-function showError(msg) {
-  document.getElementById('error-msg').textContent = '❌ ' + msg;
-  showStage('error');
-}
+function showError(msg) { document.getElementById('error-msg').textContent = '❌ ' + msg; showStage('error'); }
 
 function restart() {
-  imageBase64 = null; imageType = null; extractedRows = [];
-  previewImg.src = '';
-  previewWrap.classList.add('hidden');
-  uploadZone.style.display = '';
-  fileInput.value = '';
+  extractedRows = [];
+  document.getElementById('json-input').value = '';
+  document.getElementById('parse-error').classList.add('hidden');
   document.getElementById('review-tbody').innerHTML = '';
-  showStage('upload');
+  showStage('paste');
 }
 
 document.getElementById('restart-btn').addEventListener('click', restart);
